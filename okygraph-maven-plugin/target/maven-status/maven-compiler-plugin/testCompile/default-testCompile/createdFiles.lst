@@ -1,0 +1,16 @@
+dev\okygraph\maven\OkygraphMojoTest.class
+dev\okygraph\maven\runtime\OkygraphViewTest$TestView.class
+dev\okygraph\maven\runtime\OkygraphViewTest$CustomEscapeView.class
+dev\okygraph\maven\runtime\OkygraphViewTest$PrimitiveTestView.class
+dev\okygraph\maven\runtime\OkygraphViewTest$BufferingTestView.class
+dev\okygraph\maven\transpiler\TemplateTranspilerTest.class
+dev\okygraph\maven\runtime\OkygraphViewTest.class
+dev\okygraph\maven\runtime\OkygraphViewTest$JsTestView.class
+dev\okygraph\maven\tokenizer\TokenizerTest.class
+dev\okygraph\maven\runtime\OkygraphViewTest$NestedBufferingTestView.class
+dev\okygraph\maven\runtime\OkygraphViewTest$RawTestView.class
+dev\okygraph\maven\runtime\OkygraphViewTest$EscapeTestView.class
+dev\okygraph\maven\runtime\OkygraphViewTest$CssTestView.class
+dev\okygraph\maven\runtime\OkygraphViewTest$CharTestView.class
+dev\okygraph\maven\runtime\OkygraphViewTest$UrlTestView.class
+dev\okygraph\maven\tokenizer\UnicodePreprocessorTest.class

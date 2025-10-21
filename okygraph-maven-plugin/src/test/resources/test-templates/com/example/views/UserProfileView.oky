@@ -1,0 +1,29 @@
+package com.example.views;
+
+import com.example.model.User;
+import lombok.Setter;
+
+public class UserProfileView extends BaseView {
+
+    @Setter
+    private User user;
+
+    @Override
+    protected void render() throws java.io.IOException {`
+        <div class="profile">
+            <h1>{user.getName()}</h1>
+            <p>Email: {user.getEmail()}</p>
+
+            `if (user.isAdmin()) {`
+                <span class="badge badge-admin">Administrator</span>
+            `}`
+
+            `if (user.getBio() != null) {`
+                <div class="bio">
+                    <h2>About</h2>
+                    <p>{user.getBio()}</p>
+                </div>
+            `}`
+        </div>
+    `}
+}

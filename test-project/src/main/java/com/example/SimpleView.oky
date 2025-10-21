@@ -1,0 +1,23 @@
+package com.example;
+
+public class SimpleView {
+
+    protected void render() throws java.io.IOException {`
+        <html>
+            <body>
+                <h1>Hello from Okygraph!</h1>
+                <p>This is a simple template.</p>
+            </body>
+        </html>
+    `}
+
+    // Helper method for write()
+    protected void write(Object obj) throws java.io.IOException {
+        System.out.print(obj);
+    }
+
+    // Helper method for writeRaw()
+    protected void writeRaw(String html) throws java.io.IOException {
+        System.out.print(html);
+    }
+}

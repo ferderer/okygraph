@@ -1,0 +1,48 @@
+package dev.okygraph.maven;
+
+import java.util.List;
+
+/**
+ * AST node types and classes for template parsing
+ */
+public sealed interface ASTNode permits ContainerNode, TerminalNode {
+}
+
+/**
+ * Container node that holds child nodes
+ */
+public record ContainerNode(
+    NodeType type,
+    int lineNumber,
+    List<ASTNode> children
+) implements ASTNode {
+}
+
+/**
+ * Terminal node with content
+ */
+public record TerminalNode(
+    NodeType type,
+    int lineNumber,
+    String content
+) implements ASTNode {
+}
+
+/**
+ * Node types for AST classification
+ */
+public enum NodeType {
+    // Container types
+    TEMPLATE_METHOD,    // Root template method
+    HTML_BLOCK,         // Block of HTML content with expressions
+    IF_STATEMENT,       // @if conditional
+    FOR_LOOP,           // @for loop
+    EACH_LOOP,          // @each loop
+    
+    // Terminal types
+    JAVA_LINE,          // Single line of Java code
+    JAVA_EXPRESSION,    // {expression} content
+    JAVA_CONDITION,     // Condition/parameters for control flow
+    HTML_EXPRESSION,    // Static HTML fragment
+    ELSE                // @else marker
+}
