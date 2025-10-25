@@ -125,7 +125,7 @@ class TemplatePatternTest {
 
     @Test
     void testCatchBlockType() {
-        assertEquals(TokenType.JAVA_TOKEN, TokenPattern.CATCH_BLOCK.type);
+        assertEquals(TokenType.JAVA_TOKEN, TokenPattern.CATCH_OPS.type);
     }
 
     @Test
@@ -137,7 +137,7 @@ class TemplatePatternTest {
             {"final (", "0", "final ("},
         };
         for (String[] test : tests) {
-            Matcher m = matcher(TokenPattern.CATCH_BLOCK, test[0], Integer.parseInt(test[1]));
+            Matcher m = matcher(TokenPattern.CATCH_OPS, test[0], Integer.parseInt(test[1]));
             assertTrue(m.lookingAt(), "Should match: " + test[0]);
             assertEquals(test[2], m.group());
         }

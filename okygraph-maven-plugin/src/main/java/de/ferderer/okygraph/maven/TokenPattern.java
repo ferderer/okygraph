@@ -46,7 +46,7 @@ enum TokenPattern {
     BRACE_CLOSE("\\}", TokenType.EXPRESSION_END),
     TRY_START("`try\\s*\\{`", TokenType.TRY),
     CATCH_START("`\\}\\s*catch\\b", TokenType.CATCH),
-    CATCH_BLOCK("final\\b[@.,|()\\s]+", TokenType.JAVA_TOKEN),
+    CATCH_OPS("final\\b|[@.,|()]", TokenType.JAVA_TOKEN),
     HTML("(?:[^`{\\\\]|\\\\.)+", TokenType.HTML),
     TEXT_CONTENT("[^\"]+|\"(?!\"\")", TokenType.JAVA_TOKEN);
 
