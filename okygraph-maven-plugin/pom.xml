@@ -52,6 +52,7 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
+            <!-- The lowest supported version – do not upgrade without reason! Also the next two. -->
             <version>3.6.3</version>
             <scope>provided</scope>
         </dependency>
@@ -94,6 +95,7 @@
                     <compilerArgs>
                         <arg>-parameters</arg>
                         <arg>-Xlint:all,-processing</arg>
+                        <arg>-proc:full</arg>
                     </compilerArgs>
                     <release>${maven.compiler.release}</release>
                 </configuration>
