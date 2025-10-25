@@ -48,7 +48,7 @@ class CommentPatternTest {
 
     @Test
     void testCommentBlockStartType() {
-        assertEquals(TokenType.COMMENT_START, TokenPattern.COMMENT_BLOCK_START.type);
+        assertEquals(TokenType.COMMENT_START, TokenPattern.COMMENT_START.type);
     }
 
     @ParameterizedTest
@@ -58,7 +58,7 @@ class CommentPatternTest {
         "/** javadoc|0|/*",
     })
     void testCommentBlockStartMatches(String input, int start, String expected) {
-        Matcher m = matcher(TokenPattern.COMMENT_BLOCK_START, input, start);
+        Matcher m = matcher(TokenPattern.COMMENT_START, input, start);
         assertTrue(m.lookingAt(), "Should match at position " + start + ": " + input);
         assertEquals(expected, m.group());
     }
@@ -69,14 +69,14 @@ class CommentPatternTest {
         "x/* comment|0",
     })
     void testCommentBlockStartNoMatch(String input, int start) {
-        Matcher m = matcher(TokenPattern.COMMENT_BLOCK_START, input, start);
+        Matcher m = matcher(TokenPattern.COMMENT_START, input, start);
         assertFalse(m.lookingAt(), "Should not match at position " + start + ": " + input);
     }
 
     @Test
     void testCommentBlockStartAtEnd() {
         String line = "code";
-        Matcher m = matcher(TokenPattern.COMMENT_BLOCK_START, line, line.length());
+        Matcher m = matcher(TokenPattern.COMMENT_START, line, line.length());
         assertFalse(m.lookingAt(), "Should not match at end of string");
     }
 }
