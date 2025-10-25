@@ -5,7 +5,11 @@ import java.util.regex.Pattern;
 
 enum TokenPattern {
     COMMENT_LINE("//[^\n]*", TokenType.JAVA_TOKEN),
+
     COMMENT_START("/\\*", TokenType.COMMENT_START),
+    COMMENT_CONTENT("[^*]+|\\*(?!/)", TokenType.JAVA_TOKEN),
+    COMMENT_END("\\*/", TokenType.COMMENT_END),
+
     STRING("\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)'", TokenType.JAVA_TOKEN),
     NUMBER(
         "0[xX][0-9a-fA-F]+(?:_[0-9a-fA-F]+)*\\.[0-9a-fA-F]+(?:_[0-9a-fA-F]+)*[pP][+-]?[0-9]+(?:_[0-9]+)*[fFdD]?\\b|" +
@@ -37,15 +41,13 @@ enum TokenPattern {
     IDENTIFIER("[\\p{javaJavaIdentifierStart}][\\p{javaJavaIdentifierPart}]*", TokenType.JAVA_TOKEN),
     WHITESPACE("[ \\t]+", TokenType.JAVA_TOKEN),
     BACKTICK("`", TokenType.BACKTICK),
-    TEXT_BLOCK("\"\"\"", TokenType.TEXT_START),
+    TEXT_BLOCK("\"\"\"", TokenType.TEXT),
     BRACE_OPEN("\\{", TokenType.EXPRESSION_START),
     BRACE_CLOSE("\\}", TokenType.EXPRESSION_END),
     TRY_START("`try\\s*\\{`", TokenType.TRY),
     CATCH_START("`\\}\\s*catch\\b", TokenType.CATCH),
     CATCH_BLOCK("final\\b[@.,|()\\s]+", TokenType.JAVA_TOKEN),
     HTML("(?:[^`{\\\\]|\\\\.)+", TokenType.HTML),
-    COMMENT_END("\\*/", TokenType.COMMENT_END),
-    COMMENT_CONTENT("[^*]+|\\*(?!/)", TokenType.JAVA_TOKEN),
     TEXT_CONTENT("[^\"]+|\"(?!\"\")", TokenType.JAVA_TOKEN);
 
     public final Pattern pattern;

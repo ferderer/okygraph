@@ -54,6 +54,7 @@ public class Transpiler {
                 }
                 position = newPosition;
             }
+            emit(TokenType.NEWLINE, "\n", line);
             currentLine++;
         }
         return writer.toString();
@@ -75,7 +76,7 @@ public class Transpiler {
         context = switch(context) {
             case JAVA, TRY -> switch (type) {
                 case COMMENT_START -> ParsingContext.COMMENT;
-                case TEXT_START -> ParsingContext.TEXT;
+                case TEXT -> ParsingContext.TEXT;
                 case BACKTICK -> ParsingContext.TEMPLATE;
                 case CATCH -> ParsingContext.CATCH;  // nur für TRY relevant
                 default -> context;
@@ -89,7 +90,7 @@ public class Transpiler {
             };
             case EXPRESSION -> type == TokenType.EXPRESSION_END ? ParsingContext.TEMPLATE : context;
             case COMMENT -> type == TokenType.COMMENT_END ? ParsingContext.JAVA : context;
-            case TEXT -> type == TokenType.TEXT_START ? ParsingContext.JAVA : context;  // TEXT_START als Delimiter
+            case TEXT -> type == TokenType.TEXT ? ParsingContext.JAVA : context;  // TEXT als Delimiter
         };
     }
 
@@ -108,13 +109,17 @@ public class Transpiler {
                 }
             }
             case EXPRESSION_START -> {
-                checkFragmentedLine();
-                writer.write("write(");
+                if (context == ParsingContext.CATCH) { // CATCH_END semantics
+                    writer.write("{ this.discardBuffer(); ");
+                }
+                else {
+                    checkFragmentedLine();
+                    writer.write("write(");
+                }
             }
             case EXPRESSION_END -> writer.write(")");
             case TRY -> writer.write("try { this.pushBuffer(); ");
             case CATCH -> writer.write(" this.commitBuffer(); } catch");
-            case CATCH_END -> writer.write("{ this.discardBuffer(); ");
             case BACKTICK -> flushHtmlBuffer();
             case NEWLINE -> {
                 if (seenTemplateToken) {
