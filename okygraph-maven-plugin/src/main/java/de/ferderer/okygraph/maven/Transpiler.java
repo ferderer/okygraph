@@ -3,6 +3,8 @@ package de.ferderer.okygraph.maven;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,17 +46,30 @@ public class Transpiler {
      */
     public String transpile(String source) throws IOException {
         int currentLine = 0;
-        for(String line : source.split("\n", -1)) {
-            int position = 0;
+        String[] lines = source.split("\n", -1);
+        for(int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            String indent = getIndent(line);
+            writer.write(indent);
+            int position = indent.length();
             while (position < line.length()) {
                 int newPosition = matchToken(line, position);
                 if (newPosition == -1) {
-                    throw new RuntimeException(String.format("Unexpected character '%c' at %d:%d",
-                        line.charAt(position), currentLine + 1, position + 1));
+                    throw new RuntimeException(String.format(
+                        "Unexpected character '%c' at line %d, column %d:\n%s\n%s^",
+                        line.charAt(position), 
+                        currentLine + 1, 
+                        position + 1,
+                        line,
+                        " ".repeat(position)
+                    ));
                 }
                 position = newPosition;
             }
-            emit(TokenType.NEWLINE, "\n", line);
+            // Nur Newline emittieren wenn nicht letzte Zeile
+            if (i < lines.length - 1) {
+                emit(TokenType.NEWLINE, "\n", line);
+            }
             currentLine++;
         }
         return writer.toString();
@@ -74,18 +89,20 @@ public class Transpiler {
 
     private void updateContext(TokenType type) {
         context = switch(context) {
-            case JAVA, TRY -> switch (type) {
+            case JAVA -> switch (type) {
                 case COMMENT_START -> ParsingContext.COMMENT;
                 case TEXT -> ParsingContext.TEXT;
                 case BACKTICK -> ParsingContext.TEMPLATE;
-                case CATCH -> ParsingContext.CATCH;  // nur für TRY relevant
                 default -> context;
             };
-            case CATCH -> type == TokenType.EXPRESSION_START ? ParsingContext.JAVA : context;
+            case CATCH -> switch(type) {
+                case EXPRESSION_START -> ParsingContext.JAVA;
+                default -> context;                
+            };
             case TEMPLATE -> switch (type) {
                 case BACKTICK -> ParsingContext.JAVA;
                 case EXPRESSION_START -> ParsingContext.EXPRESSION;
-                case TRY -> ParsingContext.TRY;
+                case CATCH -> ParsingContext.CATCH;
                 default -> context;
             };
             case EXPRESSION -> type == TokenType.EXPRESSION_END ? ParsingContext.TEMPLATE : context;
@@ -94,18 +111,20 @@ public class Transpiler {
         };
     }
 
-    private final StringBuilder htmlBuffer = new StringBuilder();
+    private final List<String> htmlCache = new ArrayList<>();
     private boolean seenTemplateToken = false;
 
     private void emit(TokenType type, String value, String line) throws IOException {
         switch (type) {
             case HTML -> {
-                if (value.equals(line)) { // start text block
-                    htmlBuffer.append(value).append("\n");
-                }
-                else { // this is a HTML fragment - line with an expression
-                    checkFragmentedLine();
-                    writer.write("html(\"" + escape(value) + "\")");
+                if (!value.isBlank()) {
+                    if (value.equals(line)) { // start text block
+                        htmlCache.add(line);
+                    }
+                    else { // this is a HTML fragment - line with an expression
+                        checkFragmentedLine();
+                        writer.write("html(\"" + escape(value) + "\")");
+                    }
                 }
             }
             case EXPRESSION_START -> {
@@ -123,10 +142,10 @@ public class Transpiler {
             case BACKTICK -> flushHtmlBuffer();
             case NEWLINE -> {
                 if (seenTemplateToken) {
-                    writer.write(";");
+                    writer.write(".html(\"\\n\");");
                     seenTemplateToken = false;
                 }
-                if (htmlBuffer.isEmpty()) {
+                if (htmlCache.isEmpty()) {
                     writer.write("\n");
                 }
             }
@@ -142,14 +161,31 @@ public class Transpiler {
         }
         seenTemplateToken = true;
     }
-    
+
     private void flushHtmlBuffer() throws IOException {
-        if (!htmlBuffer.isEmpty()) {
-            writer.write("html(\"\"\"\n");
-            writer.write(htmlBuffer.toString());
-            writer.write("\"\"\");\n");
-            htmlBuffer.setLength(0);
+        if (!htmlCache.isEmpty()) {
+            String indent = getIndent(htmlCache.getFirst());
+            if (htmlCache.size() == 1) {
+                writer.write(indent);
+                writer.write("html(\"" + escape(htmlCache.getFirst().strip()) + "\");");
+            } else {
+                writer.write(indent);
+                writer.write("html(\"\"\"\n");
+                for (String line : htmlCache) {
+                    writer.write(line);
+                    writer.write("\n");
+                }
+                writer.write(indent);
+                writer.write("\"\"\");\n");
+            }
+            htmlCache.clear();
         }
+    }
+
+    private String getIndent(String line) {
+        int i = 0;
+        while (i < line.length() && (line.charAt(i) == ' ' || line.charAt(i) == '\t')) ++i;
+        return line.substring(0, i);
     }
 
     private String escape(String s) {
