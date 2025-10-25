@@ -114,6 +114,8 @@ public class Transpiler {
     private final List<String> htmlCache = new ArrayList<>();
     private boolean seenTemplateToken = false;
 
+    private String tryIndent = "";
+
     private void emit(TokenType type, String value, String line) throws IOException {
         switch (type) {
             case HTML -> {
@@ -129,7 +131,7 @@ public class Transpiler {
             }
             case EXPRESSION_START -> {
                 if (context == ParsingContext.CATCH) { // CATCH_END semantics
-                    writer.write("{ this.discardBuffer(); ");
+                    writer.write("{\n"+ tryIndent + "    this.discardBuffer();");
                 }
                 else {
                     checkFragmentedLine();
@@ -137,8 +139,13 @@ public class Transpiler {
                 }
             }
             case EXPRESSION_END -> writer.write(")");
-            case TRY -> writer.write("try { this.pushBuffer(); ");
-            case CATCH -> writer.write(" this.commitBuffer(); } catch");
+            case TRY -> {
+                tryIndent = getIndent(line);
+                writer.write("try {\n" + tryIndent + "    this.pushBuffer();");
+            }
+            case CATCH -> {
+                writer.write("    this.commitBuffer();\n" + tryIndent + "} catch");
+            }
             case BACKTICK -> flushHtmlBuffer();
             case NEWLINE -> {
                 if (seenTemplateToken) {
