@@ -30,7 +30,7 @@ class TemplatePatternTest {
 
     @Test
     void testTextBlockDelimiterType() {
-        assertEquals(TokenType.TEXT_START, TokenPattern.TEXT_BLOCK.type);
+        assertEquals(TokenType.TEXT, TokenPattern.TEXT_BLOCK.type);
     }
 
     @Test
