@@ -47,7 +47,7 @@ public class OkygraphMojo extends AbstractMojo {
     /** Where the generated base class should live. */
     @Parameter(required = true, defaultValue = "${project.basedir}/src/main/java", property = "okygraph.baseClassOutputDirectory")
     private File baseClassOutputDirectory;
-
+    
     @Override
     public void execute() throws MojoExecutionException {
         if (!sourceDirectory.isDirectory()) return;
@@ -59,7 +59,15 @@ public class OkygraphMojo extends AbstractMojo {
                 return;
             }
             for (Path oky : okyFiles) {
-               transpileTemplateFile(oky);
+                Path out = outputDirectory.toPath()
+                    .resolve(sourceDirectory.toPath().relativize(oky))
+                    .resolveSibling(oky.getFileName().toString().replace(OKY_EXTENSION, ".java"));
+
+                if (!Files.exists(out) ||
+                    Files.getLastModifiedTime(oky).compareTo(Files.getLastModifiedTime(out)) > 0) {
+                        Files.createDirectories(out.getParent());
+                        Files.writeString(out, Transpiler.process(Files.readString(oky)));
+                }
             }
             generateBaseClass();
             project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
@@ -78,21 +86,6 @@ public class OkygraphMojo extends AbstractMojo {
         }
     }
 
-    private void transpileTemplateFile(Path template) throws IOException {
-        String source = Files.readString(template);
-        String java = Transpiler.process(Tokenizer.process(source));
-        
-        Path out = getTemplateOutputPath(template);
-        Files.createDirectories(out.getParent());
-        Files.writeString(out, java);
-    }
-
-    private Path getTemplateOutputPath(Path template) {
-        return outputDirectory.toPath()
-            .resolve(sourceDirectory.toPath().relativize(template))
-            .resolveSibling(template.getFileName().toString().replace(OKY_EXTENSION, ".java"));
-    }
-
     private void generateBaseClass() throws IOException {
         String template = loadTemplate("/base-classes/" + framework.name() + ".template");
         String source = template.replace("${package}", baseClassPackage);
@@ -109,7 +102,6 @@ public class OkygraphMojo extends AbstractMojo {
         try (InputStream is = getClass().getResourceAsStream(path)) {
             if (is == null)
                 throw new IOException("Base class template not found: " + path);
-
             return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
