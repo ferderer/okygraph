@@ -1,8 +1,6 @@
 package de.ferderer.okygraph.maven;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,7 +10,7 @@ import java.util.regex.Pattern;
 public class Transpiler {
     public record Token(TokenType type, String value, int line, int column) {}
 
-    private final Writer writer = new StringWriter();
+    private final StringBuilder writer = new StringBuilder();
     private ParsingContext context = ParsingContext.JAVA;
 
     private static String preprocessUnicode(String s) {
@@ -50,7 +48,7 @@ public class Transpiler {
         for(int i = 0; i < lines.length; i++) {
             String line = lines[i];
             String indent = getIndent(line);
-            writer.write(indent);
+            writer.append(indent);
             int position = indent.length();
             while (position < line.length()) {
                 int newPosition = matchToken(line, position);
@@ -125,44 +123,44 @@ public class Transpiler {
                     }
                     else { // this is a HTML fragment - line with an expression
                         checkFragmentedLine();
-                        writer.write("html(\"" + escape(value) + "\")");
+                        writer.append("html(\"").append(escape(value)).append("\")");
                     }
                 }
             }
             case EXPRESSION_START -> {
                 if (context == ParsingContext.CATCH) { // CATCH_END semantics
-                    writer.write("{\n"+ tryIndent + "    this.discardBuffer();");
+                    writer.append("{\n").append(tryIndent).append("    this.discardBuffer();");
                 }
                 else {
                     checkFragmentedLine();
-                    writer.write("write(");
+                    writer.append("write(");
                 }
             }
-            case EXPRESSION_END -> writer.write(")");
+            case EXPRESSION_END -> writer.append(")");
             case TRY -> {
                 tryIndent = getIndent(line);
-                writer.write("try {\n" + tryIndent + "    this.pushBuffer();");
+                writer.append("try {\n").append(tryIndent).append("    this.pushBuffer();");
             }
             case CATCH -> {
-                writer.write("    this.commitBuffer();\n" + tryIndent + "} catch");
+                writer.append("    this.commitBuffer();\n").append(tryIndent).append("} catch");
             }
             case BACKTICK -> flushHtmlBuffer();
             case NEWLINE -> {
                 if (seenTemplateToken) {
-                    writer.write(".html(\"\\n\");");
+                    writer.append(".html(\"\\n\");");
                     seenTemplateToken = false;
                 }
                 if (htmlCache.isEmpty()) {
-                    writer.write("\n");
+                    writer.append("\n");
                 }
             }
-            default -> writer.write(value);
+            default -> writer.append(value);
         }
     }
 
     private void checkFragmentedLine() throws IOException {
         if (seenTemplateToken) { // not the first fragment - do chaining
-            writer.write(".");
+            writer.append(".");
         } else {
             flushHtmlBuffer();
         }
@@ -173,17 +171,13 @@ public class Transpiler {
         if (!htmlCache.isEmpty()) {
             String indent = getIndent(htmlCache.getFirst());
             if (htmlCache.size() == 1) {
-                writer.write(indent);
-                writer.write("html(\"" + escape(htmlCache.getFirst().strip()) + "\");");
+                writer.append(indent).append("html(\"").append(escape(htmlCache.getFirst().strip())).append("\");");
             } else {
-                writer.write(indent);
-                writer.write("html(\"\"\"\n");
+                writer.append(indent).append("html(\"\"\"\n");
                 for (String line : htmlCache) {
-                    writer.write(line);
-                    writer.write("\n");
+                    writer.append(line).append("\n");
                 }
-                writer.write(indent);
-                writer.write("\"\"\");\n");
+                writer.append(indent).append("\"\"\");\n");
             }
             htmlCache.clear();
         }

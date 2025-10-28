@@ -53,7 +53,7 @@ public class OkygraphMojo extends AbstractMojo {
         if (!sourceDirectory.isDirectory()) return;
 
         try {
-            List<Path> okyFiles = findOkyFiles();
+            List<Path> okyFiles = findAllOkyTemplates();
             if (okyFiles.isEmpty()) {
                 getLog().info("No .oky files found");
                 return;
@@ -76,8 +76,7 @@ public class OkygraphMojo extends AbstractMojo {
         }
     }
 
-    /** Find all templates. */
-    private List<Path> findOkyFiles() throws IOException {
+    private List<Path> findAllOkyTemplates() throws IOException {
         try (Stream<Path> walk = Files.walk(sourceDirectory.toPath())) {
             return walk
                 .filter(Files::isRegularFile)
