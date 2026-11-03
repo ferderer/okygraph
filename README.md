@@ -90,3 +90,5 @@ The goal was to find the minimum surface area for a template engine and remove e
 ## License
 
 MIT
+
+Maintained by [Vadim Ferderer](https://ferderer.de).
