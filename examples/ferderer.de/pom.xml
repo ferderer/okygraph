@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+    <name>ferderer.de website</name>
+
+    <groupId>de.ferderer</groupId>
+    <artifactId>site</artifactId>
+    <version>1.0.0</version>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.9</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <debug.args>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5000</debug.args>
+    </properties>
+
+    <dependencies>
+        <!-- === Lombok ==================================================== -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- === Spring Framework Web und Batch ============================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- === Database ==================================================
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+         -->
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.14.1</version>
+                    <configuration>
+                        <release>${maven.compiler.release}</release>
+                        <compilerArgs>
+                            <arg>-parameters</arg>
+                            <arg>-Xlint:all,-serial,-processing</arg>
+                            <arg>-proc:full</arg>
+                        </compilerArgs>
+                        <debuglevel>lines,vars,source</debuglevel>
+                        <useIncrementalCompilation>false</useIncrementalCompilation>
+                        <showDeprecation>true</showDeprecation>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.fizzed</groupId>
+                    <artifactId>fizzed-watcher-maven-plugin</artifactId>
+                    <version>1.0.6</version>
+                    <executions>
+                        <execution>
+                            <id>java</id>
+                            <configuration>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                                <watches>
+                                    <watch>
+                                        <directory>src/main/java</directory>
+                                    </watch>
+                                </watches>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>flyway</id>
+                            <configuration>
+                                <goals>
+                                    <goal>flyway:migrate@local</goal>
+                                </goals>
+                                <watches>
+                                    <watch>
+                                        <directory>src/main/resources/db</directory>
+                                    </watch>
+                                </watches>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <jacoco.skip>true</jacoco.skip>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-devtools</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <addResources>true</addResources>
+                            <jvmArguments>${debug.args}</jvmArguments>
+                            <profiles>
+                                <profile>local</profile>
+                            </profiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <!-- Required but carries no information - kept at bottom -->
+    <modelVersion>4.0.0</modelVersion>
+</project>

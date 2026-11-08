@@ -1,0 +1,41 @@
+package de.ferderer.site;
+
+public abstract class DefaultLayout extends OkyTemplate {
+
+    protected void layout(String title, Content meta, Content body) {`
+        <!doctype html>
+        <html lang="de">
+          <head>
+            <title>{title}</title>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="description" content="">
+
+            {meta}
+
+            <link href="_/icons/favicon-32x32.png" rel="icon" type="image/png" sizes="32x32">
+            <link href="_/icons/favicon-16x16.png" rel="icon" type="image/png" sizes="16x16">
+            <link href="_/icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+            <link href="_/site.webmanifest" rel="manifest">
+            <link href="_/styles.css" rel="stylesheet">
+          </head>
+          <body>
+            <header>
+              <h1>Vadim Ferderer</h1>
+              <nav>
+                <a href="/" aria-label="Home">Home</a>
+                <a href="/blog" aria-label="Blog">Blog</a>
+                <a href="/projects" aria-label="Projects">Projects</a>
+                <a href="/about" aria-label="About Me">About Me</a>
+              </nav>
+            </header>
+            <main>
+                {body}
+            </main>
+            <footer>
+              <p>© 2024 Vadim Ferderer</p>
+            </footer>
+          </body>
+        </html>
+    `}
+}
