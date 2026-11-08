@@ -74,6 +74,19 @@ class OkygraphMojoTest {
     }
 
     @Test
+    void retranspilesEvenWhenOutputIsNewer() throws Exception {
+        writeOky("com/example/HomeView.oky", "class HomeView {}\n");
+        Path out = dir.resolve("gen/com/example/HomeView.java");
+        Files.createDirectories(out.getParent());
+        Files.writeString(out, "stale");
+        Files.setLastModifiedTime(out, java.nio.file.attribute.FileTime.fromMillis(System.currentTimeMillis() + 60_000));
+
+        mojo(Framework.SPRING).execute();
+
+        assertEquals("class HomeView {}\n", Files.readString(out));
+    }
+
+    @Test
     void registersOutputDirectoriesAsSourceRoots() throws Exception {
         writeOky("com/example/HomeView.oky", "class HomeView {}\n");
         OkygraphMojo mojo = mojo(Framework.SPRING);

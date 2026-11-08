@@ -61,27 +61,18 @@ public class OkygraphMojo extends AbstractMojo {
                 getLog().info("No .oky files found");
                 return;
             }
+            // Always transpile everything: timestamps cannot see changes in base classes or layouts (ADR-0112).
             long start = System.currentTimeMillis();
-            int count = 0;
             for (Path oky : okyFiles) {
                 Path out = outputDirectory.toPath()
                     .resolve(sourceDirectory.toPath().relativize(oky))
                     .resolveSibling(oky.getFileName().toString().replace(OKY_EXTENSION, ".java"));
-
-                if (!Files.exists(out) ||
-                    Files.getLastModifiedTime(oky).compareTo(Files.getLastModifiedTime(out)) > 0) {
-                        Files.createDirectories(out.getParent());
-                        Files.writeString(out, Transpiler.process(Files.readString(oky)));
-                        count++;
-                }
+                Files.createDirectories(out.getParent());
+                Files.writeString(out, Transpiler.process(Files.readString(oky)));
             }
             generateBaseClass();
             long ms = System.currentTimeMillis() - start;
-            if (count > 0) {
-                getLog().info("Transpiled " + count + " of " + okyFiles.size() + " .oky files in " + ms + " ms");
-            } else {
-                getLog().info("" + okyFiles.size() + " .oky files up to date");
-            }
+            getLog().info("Transpiled " + okyFiles.size() + " .oky files in " + ms + " ms");
             project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to process template files", e);
