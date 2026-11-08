@@ -64,6 +64,25 @@ Run `mvn compile`. The plugin transpiles `.oky` files found under `src/main/java
 
 On the first build the plugin also writes the base class `OkyTemplate.java` into `baseClassPackage` under `src/main/java` (`baseClassOutputDirectory`). It never overwrites an existing file, so you can adapt it; delete it to regenerate. Only `SPRING` has a base class template so far.
 
+### App helpers
+
+The generated base class only integrates the framework (Spring MVC, Servlet API, SLF4J). Put helpers that need other libraries into your own layout class between `OkyTemplate` and your views. For example, a CSRF field for Spring Security forms:
+
+```java
+import org.springframework.security.web.csrf.CsrfToken;
+
+public abstract class Layout extends OkyTemplate {
+    protected Raw csrfInput() {
+        CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (token == null) return raw("");
+        return raw("<input type=\"hidden\" name=\"" + token.getParameterName()
+            + "\" value=\"" + token.getToken() + "\">");
+    }
+}
+```
+
+Use it in a form as `{csrfInput()}`. See [`examples/sci-life`](examples/sci-life/src/main/java/art/scilife/common/web/Layout.oky).
+
 ## Why
 
 Every Java template engine adds a runtime layer: expression evaluation, caching, view resolution, framework integration. Okygraph removes all of it.
