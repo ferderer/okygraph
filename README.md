@@ -104,7 +104,7 @@ Targets Java 21 (`maven.compiler.release`); verified with JDK 25 and Maven 3.9.1
 
 ```sh
 cd okygraph-maven-plugin
-mvn verify          # compile, 76 unit tests, plugin jar
+mvn verify          # compile, 78 unit tests, plugin jar
 ```
 
 The VS Code extension has no build step: it consists of four declarative JSON files.

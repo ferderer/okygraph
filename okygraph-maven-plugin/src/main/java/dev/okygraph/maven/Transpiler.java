@@ -13,6 +13,11 @@ public class Transpiler {
     private final StringBuilder writer = new StringBuilder();
     private ParsingContext context = ParsingContext.JAVA;
 
+    /** CRLF and lone CR become LF; no token pattern matches '\r' (ADR-0111). */
+    private static String normalizeLineEndings(String s) {
+        return s.replace("\r\n", "\n").replace("\r", "\n");
+    }
+
     private static String preprocessUnicode(String s) {
         Matcher m = Pattern.compile("\\\\u+([0-9a-fA-F]{4})").matcher(s);
         StringBuilder sb = new StringBuilder(s.length());
@@ -33,7 +38,7 @@ public class Transpiler {
      * @throws TokenizerException if an unexpected character is encountered
      */
     public static String process(String source) throws IOException {
-        return new Transpiler().transpile(preprocessUnicode(source));
+        return new Transpiler().transpile(preprocessUnicode(normalizeLineEndings(source)));
     }
 
     /**

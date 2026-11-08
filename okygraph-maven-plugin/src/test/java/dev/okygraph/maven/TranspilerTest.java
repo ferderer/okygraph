@@ -109,4 +109,14 @@ public class TranspilerTest {
     void testComplexTemplate() throws IOException {
         assertEquals(COMPLEX_TEST_JAVA, Transpiler.process(COMPLEX_TEST_OKY));
     }
+
+    @Test
+    void testCrlfLineEndings() throws IOException {
+        assertEquals(COMPLEX_TEST_JAVA, Transpiler.process(COMPLEX_TEST_OKY.replace("\n", "\r\n")));
+    }
+
+    @Test
+    void testCrLineEndings() throws IOException {
+        assertEquals(COMPLEX_TEST_JAVA, Transpiler.process(COMPLEX_TEST_OKY.replace("\n", "\r")));
+    }
 }
