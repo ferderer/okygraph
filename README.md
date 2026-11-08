@@ -2,7 +2,7 @@
 
 > ὠκύγραφος — Greek for *swift writer*
 
-A compile-time Java template engine. 360 lines of plugin code. Zero lines of runtime you need to understand. No runtime dependencies. No custom syntax to learn. No ViewResolver configuration. Just Java with HTML inside.
+A compile-time Java template engine. 361 lines of plugin code. Zero lines of runtime you need to understand. No runtime dependencies. No custom syntax to learn. No ViewResolver configuration. Just Java with HTML inside.
 
 ## Two Concepts
 
