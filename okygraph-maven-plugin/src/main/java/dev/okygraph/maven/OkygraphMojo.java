@@ -1,4 +1,4 @@
-package de.ferderer.okygraph.maven;
+package dev.okygraph.maven;
 
 import java.io.File;
 import java.io.IOException;

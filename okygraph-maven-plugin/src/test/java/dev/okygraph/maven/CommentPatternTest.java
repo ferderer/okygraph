@@ -1,4 +1,4 @@
-package de.ferderer.okygraph.maven;
+package dev.okygraph.maven;
 
 import java.util.regex.Matcher;
 import static org.junit.jupiter.api.Assertions.*;

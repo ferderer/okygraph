@@ -1,4 +1,4 @@
-package de.ferderer.okygraph.maven;
+package dev.okygraph.maven;
 
 enum TokenType {
     JAVA_TOKEN,        // Pass through

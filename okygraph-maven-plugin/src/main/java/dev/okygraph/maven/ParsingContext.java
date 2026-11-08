@@ -1,6 +1,6 @@
-package de.ferderer.okygraph.maven;
+package dev.okygraph.maven;
 
-import static de.ferderer.okygraph.maven.TokenPattern.*;
+import static dev.okygraph.maven.TokenPattern.*;
 import java.util.List;
 
 enum ParsingContext {
