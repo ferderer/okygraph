@@ -1,6 +1,16 @@
 package art.scilife.common.web;
 
+import org.springframework.security.web.csrf.CsrfToken;
+
 public abstract class Layout extends OkyTemplate {
+    /** Hidden CSRF field for Spring Security forms; app helper, not part of the base class (ADR-0117). */
+    protected Raw csrfInput() {
+        CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (token == null) return raw("");
+        return raw("<input type=\"hidden\" name=\"" + token.getParameterName()
+            + "\" value=\"" + token.getToken() + "\">");
+    }
+
     public void simpleLayout(Content meta, Content body) {`
         <!doctype html>
         <html lang="de">
