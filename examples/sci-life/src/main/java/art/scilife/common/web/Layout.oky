@@ -1,0 +1,52 @@
+package art.scilife.common.web;
+
+public abstract class Layout extends OkyTemplate {
+    public void simpleLayout(Content meta, Content body) {`
+        <!doctype html>
+        <html lang="de">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel='shortcut icon' type='image/x-icon' href='/_/icons/favicon.png?app=sci-life'>
+            {meta}
+            <link rel="stylesheet" href="/_/styles.css">
+        </head>
+        <body>
+        <main>
+                {body}
+            </main>
+        </body>
+        </html>
+    `}
+
+    public void layout(Content meta, Content body) {`
+      <!doctype html>
+      <html lang="de">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link rel='shortcut icon' type='image/x-icon' href='/_/icons/favicon.png?app=sci-life'>
+          {meta}
+          <link rel="stylesheet" href="/_/styles.css">
+      </head>
+      <body>
+        <header>
+          <nav>
+            <sl-logo>Sci-Life</sl-logo>
+            <a href="/food">Lebensmittel</a>
+            <a href="/news">News</a>
+            <a href="/optimizer">Optimizer</a>
+            <a href="/login">Anmelden</a>
+            <a href="/register">Registrieren</a>
+          </nav>
+        </header>
+        <main>
+          {body}
+        </main>
+        <footer>
+          <p>© 2026 Sci-Life · <a href="/imprint">Impressum</a> · <a href="/privacy">Datenschutz</a></p>
+        </footer>
+      </body>
+      </html>
+    `}
+}

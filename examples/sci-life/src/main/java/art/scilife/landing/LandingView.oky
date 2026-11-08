@@ -1,0 +1,176 @@
+package art.scilife.landing;
+
+import art.scilife.common.web.Layout;
+
+public class LandingView extends Layout {
+
+    @Override
+    protected void render() {
+        layout(() -> {`
+          <meta name="description" content="Sci-Life – evidenzbasierte Ernährung und Gesundheit">
+          <title>Sci-Life</title>
+          <link rel="canonical" href="https://sci-life.art/">
+        `}, () -> {`
+          <!-- Dashboard-Strip: nur für eingeloggte User -->
+          <sl-dashboard-strip>
+              <sl-strip-stat>
+              <strong>1 840</strong>
+              <span>kcal heute</span>
+              </sl-strip-stat>
+              <sl-strip-stat>
+              <strong>94 g</strong>
+              <span>Protein</span>
+              </sl-strip-stat>
+              <sl-strip-stat>
+              <strong>72 %</strong>
+              <span>Nährstoff-Coverage</span>
+              </sl-strip-stat>
+              <sl-strip-last>
+              Letzter Eintrag: <strong>Brombeere</strong> · vor 2 Stunden
+              </sl-strip-last>
+              <a href="/diary">Tagebuch öffnen →</a>
+          </sl-dashboard-strip>
+
+          <!-- Food-Suche -->
+          <section>
+              <h1>Was isst du heute?</h1>
+              <sl-search>
+              <form method="get" action="/food">
+                  <input type="search" name="q" placeholder="Lebensmittel suchen – z. B. Brombeere, Lachs, Haferflocken …"
+                      autocomplete="off" aria-label="Lebensmittel suchen">
+                  <button type="submit" aria-label="Suchen">→</button>
+              </form>
+              </sl-search>
+          </section>
+
+          <!-- Science News -->
+          <section>
+              <sl-section-head>
+              <h2>Science News</h2>
+              <a href="/news">Alle anzeigen →</a>
+              </sl-section-head>
+
+              <sl-news-feed>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Kardiologie</sl-badge>
+                  <sl-badge>Pflanzlich</sl-badge>
+                  <time datetime="2026-06-25">25. Juni 2026</time>
+                  <span>Nature Medicine</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/1">Mediterrane Ernährung reduziert kardiovaskuläres Risiko um 28 %</a></h3>
+                  <p>Eine 12-jährige Kohortenstudie mit 45 000 Teilnehmern zeigt signifikante Reduktion von MACE-Ereignissen bei konsequenter Einhaltung eines mediterranen Ernährungsmusters – unabhängig von Ausgangs-LDL.</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Metabolismus</sl-badge>
+                  <sl-badge>Fett</sl-badge>
+                  <time datetime="2026-06-23">23. Juni 2026</time>
+                  <span>Cell Metabolism</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/2">Intramuskuläres Fett (IMCL) als früher Biomarker für Insulinresistenz</a></h3>
+                  <p>MRS-Studie zeigt dass IMCL-Erhöhung der klinischen Insulinresistenz um 3–5 Jahre vorausgeht. Eucalorische ultra-low-fat Intervention reduziert IMCL signifikant innerhalb von 14 Tagen.</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Darmmikrobiom</sl-badge>
+                  <sl-badge>Ballaststoffe</sl-badge>
+                  <time datetime="2026-06-21">21. Juni 2026</time>
+                  <span>Gut</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/3">Fermentierte Lebensmittel stärken Mikrobiom-Diversität stärker als Ballaststoffe</a></h3>
+                  <p>Stanford-RCT vergleicht hochfaserige vs. fermentierungsreiche Diät über 10 Wochen. Fermentierte Gruppe zeigt höhere Mikrobiom-Diversität und niedrigere Inflammationsmarker (IL-6, IL-12).</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Krebs</sl-badge>
+                  <sl-badge>Phytonährstoffe</sl-badge>
+                  <time datetime="2026-06-19">19. Juni 2026</time>
+                  <span>JNCI</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/4">Sulforaphan aus Brokkoli hemmt Tumorwachstum über Nrf2-Pathway</a></h3>
+                  <p>In-vitro und Maus-Modell zeigen dosisabhängige Induktion von Phase-II-Enzymen durch Sulforaphan. Bioverfügbarkeit stark abhängig von Zubereitung – Dampfgaren erhält Myrosinase-Aktivität.</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Langlebigkeit</sl-badge>
+                  <sl-badge>Protein</sl-badge>
+                  <time datetime="2026-06-17">17. Juni 2026</time>
+                  <span>Nature Aging</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/5">Optimale Proteinverteilung über den Tag verbessert Muskelproteinsynthese um 25 %</a></h3>
+                  <p>Meta-Analyse von 22 RCTs: gleichmäßige Verteilung von 30–40 g Protein über 4 Mahlzeiten übertrifft einmalige Hochdosis-Zufuhr bei Muskelproteinsyntheserate – besonders relevant ab 50+.</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Entzündung</sl-badge>
+                  <sl-badge>Omega-3</sl-badge>
+                  <time datetime="2026-06-15">15. Juni 2026</time>
+                  <span>AJCN</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/6">EPA/DHA-Ratio entscheidend für antiinflammatorische Wirkung</a></h3>
+                  <p>Neue Analyse zeigt dass nicht die Gesamtmenge, sondern das EPA/DHA-Verhältnis den CRP-senkenden Effekt determiniert. Optimale Ratio liegt bei 2:1 EPA:DHA für kardiovaskuläre Endpunkte.</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Mikrobiom</sl-badge>
+                  <sl-badge>Schlaf</sl-badge>
+                  <time datetime="2026-06-12">12. Juni 2026</time>
+                  <span>Science</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/7">Darm-Hirn-Achse: Tryptophan-Metabolismus beeinflusst Schlafqualität direkt</a></h3>
+                  <p>Humanstudie zeigt dass Bacteroides-Populationen die Tryptophan-zu-Serotonin-Conversion regulieren und damit den zirkadianen Rhythmus modulieren. Präbiotika mit Inulin verbessern Schlaf-Scores.</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Kognition</sl-badge>
+                  <sl-badge>Flavonoide</sl-badge>
+                  <time datetime="2026-06-10">10. Juni 2026</time>
+                  <span>Neurology</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/8">Blaubeeren verlangsamen kognitive Alterung um bis zu 2,5 Jahre</a></h3>
+                  <p>20-jährige Längsschnittstudie mit 16 000 Teilnehmern: regelmäßiger Blaubeer-Konsum (≥2 Portionen/Woche) korreliert mit verlangsamtem kognitivem Abbau, mediziert durch Anthocyan-Metabolite.</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Schilddrüse</sl-badge>
+                  <sl-badge>Jod</sl-badge>
+                  <time datetime="2026-06-08">8. Juni 2026</time>
+                  <span>NEJM</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/9">Latenter Jodmangel in Europa weiter unterschätzt</a></h3>
+                  <p>EPIC-Nachfolgestudie: 34 % der europäischen Bevölkerung zeigen suboptimale Jodversorgung. Besonderes Risiko bei veganer Ernährung ohne Algensupplementierung. TSH-Normwerte maskieren funktionellen Mangel.</p>
+              </article>
+
+              <article>
+                  <sl-news-meta>
+                  <sl-badge>Sport</sl-badge>
+                  <sl-badge>Mitochondrien</sl-badge>
+                  <time datetime="2026-06-05">5. Juni 2026</time>
+                  <span>PNAS</span>
+                  </sl-news-meta>
+                  <h3><a href="/news/10">3-Tage-Regel für mitochondriale Biogenese bestätigt</a></h3>
+                  <p>PGC-1α-Netto-Syntheseüberschuss akkumuliert über 3 Tage nach intensivem Ausdauertraining. Tägliche moderate Aktivität hält das Plateau, erhöht es aber nicht. Implikationen für optimale Trainingsfrequenz.</p>
+              </article>
+
+              </sl-news-feed>
+          </section>
+
+          <!-- Registration CTA: nur für anonyme User -->
+          <sl-cta>
+              <h2>Personalisiere deinen Feed</h2>
+              <p>Tracke deine Ernährung, erhalte evidenzbasierte Empfehlungen und optimiere deine Gesundheit.</p>
+              <a href="/register" role="button">Kostenlos starten →</a>
+          </sl-cta>
+        `});
+    }
+}

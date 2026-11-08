@@ -1,0 +1,36 @@
+package art.scilife.identity.login;
+
+import art.scilife.common.web.Layout;
+
+public class LoginView extends Layout {
+
+    @Override
+    protected void render() {
+        simpleLayout(() -> {`
+          <meta name="description" content="Anmelden bei Sci-Life – evidenzbasierte Ernährung und Gesundheit">
+          <title>Anmelden – Sci-Life</title>
+          <link rel="canonical" href="https://sci-life.art/login">
+        `}, () -> {`
+          <sl-auth>
+            <sl-brand>Sci-Life</sl-brand>
+              <section>
+                <h1>Willkommen zurück</h1>
+                <p>Melde dich mit deinem Konto an</p>
+                <form method="post" action="/login">
+                  {csrfInput()}
+                  <sl-field>
+                    <label for="email">E-Mail-Adresse</label>
+                    <input type="email" id="email" name="email" autocomplete="email" required>
+                  </sl-field>
+                  <sl-field>
+                    <label for="password">Passwort</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                  </sl-field>
+                  <button type="submit">Anmelden</button>
+                </form>
+              </section>
+            <p>Noch kein Konto? <a href="/register">Jetzt registrieren</a></p>
+          </sl-auth>
+        `});
+    }
+}
