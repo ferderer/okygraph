@@ -1,0 +1,39 @@
+{
+  "name": "okygraph",
+  "displayName": "Okygraph",
+  "description": "Syntax highlighting and snippets for Okygraph template files (.oky)",
+  "version": "0.1.0",
+  "publisher": "okygraph",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Programming Languages"],
+  "extensionRecommendations": [
+    "redhat.java"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "oky",
+        "aliases": ["Okygraph", "oky"],
+        "extensions": [".oky"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "oky",
+        "scopeName": "source.oky",
+        "path": "./syntaxes/oky.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.java.oky": "java",
+          "meta.embedded.html.oky": "html"
+        }
+      }
+    ],
+    "snippets": [
+      {
+        "language": "oky",
+        "path": "./snippets/oky.code-snippets"
+      }
+    ]
+  }
+}

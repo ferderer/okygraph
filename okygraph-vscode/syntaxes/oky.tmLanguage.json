@@ -1,0 +1,133 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Okygraph",
+  "scopeName": "source.oky",
+  "fileTypes": ["oky"],
+  "patterns": [
+    { "include": "#template-region" },
+    { "include": "source.java" }
+  ],
+  "repository": {
+    "template-region": {
+      "name": "meta.embedded.html.oky",
+      "begin": "`",
+      "end": "`",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.template.oky" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.template.oky" }
+      },
+      "patterns": [
+        { "include": "#expression" },
+        { "include": "#html-comment" },
+        { "include": "#html-opening-tag" },
+        { "include": "#html-closing-tag" },
+        { "include": "#html-entity" }
+      ]
+    },
+    "expression": {
+      "name": "meta.embedded.java.oky",
+      "begin": "\\{",
+      "end": "\\}",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.expression.begin.oky" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.expression.end.oky" }
+      },
+      "patterns": [
+        { "include": "source.java" }
+      ]
+    },
+    "html-comment": {
+      "name": "comment.block.html",
+      "begin": "<!--",
+      "end": "-->",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.comment.html" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.comment.html" }
+      }
+    },
+    "html-opening-tag": {
+      "name": "meta.tag.html",
+      "begin": "(<)([\\w:-]+)",
+      "end": "(\\/?>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "entity.name.tag.html" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.end.html" }
+      },
+      "patterns": [
+        { "include": "#html-attribute" }
+      ]
+    },
+    "html-closing-tag": {
+      "name": "meta.tag.html",
+      "match": "(<\\/)([\\w:-]+)(>)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "entity.name.tag.html" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      }
+    },
+    "html-attribute": {
+      "patterns": [
+        {
+          "begin": "([\\w:-]+)\\s*(=)\\s*",
+          "end": "(?=[\\s\\/>])",
+          "beginCaptures": {
+            "1": { "name": "entity.other.attribute-name.html" },
+            "2": { "name": "punctuation.separator.key-value.html" }
+          },
+          "patterns": [
+            { "include": "#html-attribute-value-double" },
+            { "include": "#html-attribute-value-single" }
+          ]
+        },
+        {
+          "name": "entity.other.attribute-name.html",
+          "match": "[\\w:-]+"
+        }
+      ]
+    },
+    "html-attribute-value-double": {
+      "name": "string.quoted.double.html",
+      "begin": "\"",
+      "end": "\"",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.string.begin.html" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.string.end.html" }
+      },
+      "patterns": [
+        { "include": "#expression" },
+        { "include": "#html-entity" }
+      ]
+    },
+    "html-attribute-value-single": {
+      "name": "string.quoted.single.html",
+      "begin": "'",
+      "end": "'",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.string.begin.html" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.string.end.html" }
+      },
+      "patterns": [
+        { "include": "#expression" },
+        { "include": "#html-entity" }
+      ]
+    },
+    "html-entity": {
+      "name": "constant.character.entity.html",
+      "match": "&(?:[\\w]+|#[0-9]+|#x[0-9a-fA-F]+);"
+    }
+  }
+}
