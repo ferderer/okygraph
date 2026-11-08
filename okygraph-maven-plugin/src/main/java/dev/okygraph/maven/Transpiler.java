@@ -47,9 +47,7 @@ public class Transpiler {
         String[] lines = source.split("\n", -1);
         for(int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            String indent = getIndent(line);
-            writer.append(indent);
-            int position = indent.length();
+            int position = saveIndent(line);
             while (position < line.length()) {
                 int newPosition = matchToken(line, position);
                 if (newPosition == -1) {
@@ -113,12 +111,44 @@ public class Transpiler {
     private boolean seenTemplateToken = false;
 
     private String tryIndent = "";
+    private String indent = "";
+
+    /** Captures the current line's leading whitespace and returns where its content starts. */
+    private int saveIndent(String line) {
+        indent = getIndent(line);
+        return indent.length();
+    }
+
+    /** Writes the pending indent exactly once; a no-op once drained or explicitly discarded. */
+    private StringBuilder writeIndent() {
+        writer.append(indent);
+        indent = "";
+        return writer;
+    }
+
+    /** Drains anything pending before new content is written: cached HTML lines, then the line indent. */
+    private void flush() throws IOException {
+        if (!htmlCache.isEmpty()) {
+            String cachedIndent = getIndent(htmlCache.getFirst());
+                if (htmlCache.size() == 1) {
+                    writer.append(cachedIndent).append("html(\"").append(escape(htmlCache.getFirst().strip())).append("\\n\");\n");
+                } else {
+                writer.append(cachedIndent).append("html(\"\"\"\n");
+                for (String l : htmlCache) {
+                    writer.append(l).append("\n");
+                }
+                writer.append(cachedIndent).append("\"\"\");\n");
+            }
+            htmlCache.clear();
+        }
+        writeIndent();
+    }
 
     private void emit(TokenType type, String value, String line) throws IOException {
         switch (type) {
             case HTML -> {
                 if (!value.isBlank()) {
-                    if (value.equals(line)) { // start text block
+                    if (value.equals(line.substring(indent.length()))) { // whole line -> defer into the text-block cache
                         htmlCache.add(line);
                     }
                     else { // this is a HTML fragment - line with an expression
@@ -138,13 +168,16 @@ public class Transpiler {
             }
             case EXPRESSION_END -> writer.append(")");
             case TRY -> {
-                tryIndent = getIndent(line);
+                tryIndent = indent; // capture before flush() drains it
+                flush();
                 writer.append("try {\n").append(tryIndent).append("    this.pushBuffer();");
             }
             case CATCH -> {
-                writer.append("    this.commitBuffer();\n").append(tryIndent).append("} catch");
+                indent = ""; // discard this line's own indent - align with the matching try instead
+                flush();
+                writer.append(tryIndent).append("    this.commitBuffer();\n").append(tryIndent).append("} catch");
             }
-            case BACKTICK -> flushHtmlBuffer();
+            case BACKTICK -> flush();
             case NEWLINE -> {
                 if (seenTemplateToken) {
                     writer.append(".html(\"\\n\");");
@@ -154,7 +187,10 @@ public class Transpiler {
                     writer.append("\n");
                 }
             }
-            default -> writer.append(value);
+            default -> {
+                flush();
+                writer.append(value);
+            }
         }
     }
 
@@ -162,25 +198,9 @@ public class Transpiler {
         if (seenTemplateToken) { // not the first fragment - do chaining
             writer.append(".");
         } else {
-            flushHtmlBuffer();
+            flush();
         }
         seenTemplateToken = true;
-    }
-
-    private void flushHtmlBuffer() throws IOException {
-        if (!htmlCache.isEmpty()) {
-            String indent = getIndent(htmlCache.getFirst());
-            if (htmlCache.size() == 1) {
-                writer.append(indent).append("html(\"").append(escape(htmlCache.getFirst().strip())).append("\");");
-            } else {
-                writer.append(indent).append("html(\"\"\"\n");
-                for (String line : htmlCache) {
-                    writer.append(line).append("\n");
-                }
-                writer.append(indent).append("\"\"\");\n");
-            }
-            htmlCache.clear();
-        }
     }
 
     private String getIndent(String line) {

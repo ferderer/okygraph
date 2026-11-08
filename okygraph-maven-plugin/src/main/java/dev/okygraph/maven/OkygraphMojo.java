@@ -24,7 +24,7 @@ public class OkygraphMojo extends AbstractMojo {
 
     /** Extension for template classes. */
     private static final String OKY_EXTENSION = ".oky";
-    
+
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
@@ -47,7 +47,7 @@ public class OkygraphMojo extends AbstractMojo {
     /** Where the generated base class should live. */
     @Parameter(required = true, defaultValue = "${project.basedir}/src/main/java", property = "okygraph.baseClassOutputDirectory")
     private File baseClassOutputDirectory;
-    
+
     @Override
     public void execute() throws MojoExecutionException {
         if (!sourceDirectory.isDirectory()) return;
@@ -58,6 +58,8 @@ public class OkygraphMojo extends AbstractMojo {
                 getLog().info("No .oky files found");
                 return;
             }
+            long start = System.currentTimeMillis();
+            int count = 0;
             for (Path oky : okyFiles) {
                 Path out = outputDirectory.toPath()
                     .resolve(sourceDirectory.toPath().relativize(oky))
@@ -67,9 +69,16 @@ public class OkygraphMojo extends AbstractMojo {
                     Files.getLastModifiedTime(oky).compareTo(Files.getLastModifiedTime(out)) > 0) {
                         Files.createDirectories(out.getParent());
                         Files.writeString(out, Transpiler.process(Files.readString(oky)));
+                        count++;
                 }
             }
-            generateBaseClass();
+            //generateBaseClass();
+            long ms = System.currentTimeMillis() - start;
+            if (count > 0) {
+                getLog().info("Transpiled " + count + " of " + okyFiles.size() + " .oky files in " + ms + " ms");
+            } else {
+                getLog().info("" + okyFiles.size() + " .oky files up to date");
+            }
             project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to process template files", e);

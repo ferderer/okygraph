@@ -1,6 +1,7 @@
 package dev.okygraph.maven;
 
 import static dev.okygraph.maven.TokenPattern.*;
+
 import java.util.List;
 
 enum ParsingContext {

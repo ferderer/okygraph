@@ -26,7 +26,7 @@ public class TranspilerTest {
             """;
         String expected = """
             void render() {
-                html("<p>Hello World</p>");
+                html("<p>Hello World</p>\\n");
             }
             """;
         assertEquals(expected, Transpiler.process(input));
@@ -79,28 +79,31 @@ public class TranspilerTest {
     private static final String COMPLEX_TEST_JAVA = 
     """
     protected void render() {
-        html("<p>Greetings ").write(user.name).html("!</p>\\n");
+        html("<p>Greetings ").write(user.name).html("!</p>").html("\\n");
         if (user.isActive()) {
             html("<p>User is active</p>\\n");
         } else {
             html("<p>User is active</p>\\n");
         }
-        html("<h3>Die Hobbies von ").write(user.name).html(":</h3>\\n");
-        <ul>
+        html("<h3>Die Hobbies von ").write(user.name).html(":</h3>").html("\\n");
+        html("<ul>\\n");
             for (var hobby : user.getHobbies()) {
-                html("<li>").write(hobby).html("</li>\\n");
+                html("<li>").write(hobby).html("</li>").html("\\n");
             }
-        </ul>
-        try { pushBuffer();
-            html("<img src=\\").write(user.getAvatar).html("\\">\\n");
-        commitBuffer(); } catch (AppException e) { discardBuffer();
-            html("<img src=\\"/img/defaultAvatar.png\\">");
+        html("</ul>\\n");
+        try {
+            this.pushBuffer();
+            html("<img src=\\"").write(user.getAvatar).html("\\">").html("\\n");
+            this.commitBuffer();
+        } catch (AppException e) {
+            this.discardBuffer();
+            html("<img src=\\"/img/defaultAvatar.png\\">\\n");
         }
         html(\"\"\"
         <p><b>All this is possible with 300 LOC of Java code! 💪</b></p>
         <p>Give it a try!</p>
         \"\"\");
-    `}
+    }
     """;
     @Test
     void testComplexTemplate() throws IOException {
