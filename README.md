@@ -60,7 +60,9 @@ The Maven plugin transpiles this to pure Java at compile time. The result is a r
 </plugin>
 ```
 
-Run `mvn compile`. The plugin transpiles `.oky` files found under `src/main/java` to regular `.java` files in `target/generated-sources`. No Spring Boot starter required — the generated base class implements `org.springframework.web.servlet.View` directly.
+Run `mvn compile`. The plugin transpiles `.oky` files found under `src/main/java` to regular `.java` files in `target/generated-sources` and adds that directory to the compile sources. No Spring Boot starter required — the base class `OkyTemplate` implements `org.springframework.web.servlet.View` directly.
+
+> **Note:** generating the base class is not active yet (`generateBaseClass()` is disabled in `OkygraphMojo`). Until then, copy [`base-classes/SPRING.template`](okygraph-maven-plugin/src/main/resources/base-classes/SPRING.template) into your `baseClassPackage` as `OkyTemplate.java` and replace `${package}`. Only the Spring base class exists so far.
 
 ## Why
 
@@ -85,10 +87,30 @@ There is no cold start — templates are Java methods, called like any other cod
 
 ## Philosophy
 
-The goal was to find the minimum surface area for a template engine and remove everything else. ~300 lines. Nothing left to remove.
+The goal was to find the minimum surface area for a template engine and remove everything else. ~360 lines. Nothing left to remove.
+
+## Repository layout
+
+```
+okygraph-maven-plugin/   the Maven plugin (tokenizer/transpiler, mojo, Spring base-class template)
+okygraph-vscode/         VS Code extension: TextMate grammar and snippets for .oky
+examples/                ferderer.de (Spring Boot site skeleton), sci-life (templates)
+docs/                    ADRs, ideas, insights, specs, history
+```
+
+## Building
+
+Targets Java 21 (`maven.compiler.release`); verified with JDK 25 and Maven 3.9.16.
+
+```sh
+cd okygraph-maven-plugin
+mvn verify          # compile, 76 unit tests, plugin jar
+```
+
+The VS Code extension has no build step: it consists of four declarative JSON files.
 
 ## License
 
-MIT
+Apache License 2.0 — see [LICENSE](LICENSE).
 
 Maintained by [Vadim Ferderer](https://ferderer.de).
