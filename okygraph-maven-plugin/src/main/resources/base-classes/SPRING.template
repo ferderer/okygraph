@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.servlet.View;
 
 public abstract class OkyTemplate implements View {
@@ -117,14 +116,6 @@ public abstract class OkyTemplate implements View {
         out = new PrintWriter((java.io.Writer) writerStack.peek(), true);
     }
 
-    // ── Helpers    ───────────────────────────────────────────────────────────
-    protected Raw csrfInput() {
-        CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-        if (token == null) return raw("");
-        return raw("<input type=\"hidden\" name=\"" 
-            + token.getParameterName() + "\" value=\"" 
-            + token.getToken() + "\">");
-    }
     // ── Formatters ───────────────────────────────────────────────────────────
 
     protected String formatDate(LocalDate date, FormatStyle style) {

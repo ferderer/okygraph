@@ -53,6 +53,7 @@ class OkygraphMojoTest {
         assertTrue(source.startsWith("package com.example.views;"), source.lines().findFirst().orElse(""));
         assertTrue(source.contains("public abstract class OkyTemplate implements View"));
         assertFalse(source.contains("${package}"));
+        assertFalse(source.contains("org.springframework.security"), "base class must only need Spring MVC (ADR-0117)");
     }
 
     @Test
