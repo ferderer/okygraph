@@ -62,7 +62,7 @@ The Maven plugin transpiles this to pure Java at compile time. The result is a r
 
 Run `mvn compile`. The plugin transpiles `.oky` files found under `src/main/java` to regular `.java` files in `target/generated-sources` and adds that directory to the compile sources. No Spring Boot starter required — the base class `OkyTemplate` implements `org.springframework.web.servlet.View` directly.
 
-> **Note:** generating the base class is not active yet (`generateBaseClass()` is disabled in `OkygraphMojo`). Until then, copy [`base-classes/SPRING.template`](okygraph-maven-plugin/src/main/resources/base-classes/SPRING.template) into your `baseClassPackage` as `OkyTemplate.java` and replace `${package}`. Only the Spring base class exists so far.
+On the first build the plugin also writes the base class `OkyTemplate.java` into `baseClassPackage` under `src/main/java` (`baseClassOutputDirectory`). It never overwrites an existing file, so you can adapt it; delete it to regenerate. Only `SPRING` has a base class template so far.
 
 ## Why
 
@@ -104,7 +104,7 @@ Targets Java 21 (`maven.compiler.release`); verified with JDK 25 and Maven 3.9.1
 
 ```sh
 cd okygraph-maven-plugin
-mvn verify          # compile, 78 unit tests, plugin jar
+mvn verify          # compile, 82 unit tests, plugin jar
 ```
 
 The VS Code extension has no build step: it consists of four declarative JSON files.

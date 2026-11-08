@@ -25,6 +25,9 @@ public class OkygraphMojo extends AbstractMojo {
     /** Extension for template classes. */
     private static final String OKY_EXTENSION = ".oky";
 
+    /** Simple name of the generated base class; every framework template defines this class. */
+    private static final String BASE_CLASS_NAME = "OkyTemplate";
+
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
@@ -72,7 +75,7 @@ public class OkygraphMojo extends AbstractMojo {
                         count++;
                 }
             }
-            //generateBaseClass();
+            generateBaseClass();
             long ms = System.currentTimeMillis() - start;
             if (count > 0) {
                 getLog().info("Transpiled " + count + " of " + okyFiles.size() + " .oky files in " + ms + " ms");
@@ -94,22 +97,29 @@ public class OkygraphMojo extends AbstractMojo {
         }
     }
 
-    private void generateBaseClass() throws IOException {
-        String template = loadTemplate("/base-classes/" + framework.name() + ".template");
-        String source = template.replace("${package}", baseClassPackage);
-
+    /**
+     * Writes the framework's base class into the configured package, but only if it does not exist yet:
+     * it lives in the user's source tree by default and may be adapted there. Delete it to regenerate.
+     */
+    private void generateBaseClass() throws IOException, MojoExecutionException {
         Path out = baseClassOutputDirectory.toPath()
             .resolve(baseClassPackage.replace('.', '/'))
-            .resolve(framework.name() + "OkygraphView.java");
-
+            .resolve(BASE_CLASS_NAME + ".java");
+        project.addCompileSourceRoot(baseClassOutputDirectory.getAbsolutePath());
+        if (Files.exists(out)) {
+            getLog().debug("Keeping existing base class " + out);
+            return;
+        }
+        String template = loadTemplate("/base-classes/" + framework.name() + ".template");
         Files.createDirectories(out.getParent());
-        Files.writeString(out, source);
+        Files.writeString(out, template.replace("${package}", baseClassPackage));
+        getLog().info("Generated base class " + baseClassPackage + "." + BASE_CLASS_NAME);
     }
 
-    private String loadTemplate(String path) throws IOException {
+    private String loadTemplate(String path) throws IOException, MojoExecutionException {
         try (InputStream is = getClass().getResourceAsStream(path)) {
             if (is == null)
-                throw new IOException("Base class template not found: " + path);
+                throw new MojoExecutionException("No base class template for framework " + framework + " yet (" + path + ")");
             return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
