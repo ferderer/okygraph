@@ -30,7 +30,7 @@ class EscapeRoundTripTest {
             """);
         Path file = dir.resolve("T.java");
         Files.writeString(file, java);
-        assertEquals(0, ToolProvider.getSystemJavaCompiler().run(null, null, null, "-d", dir.toString(), file.toString()),
+        assertEquals(0, ToolProvider.getSystemJavaCompiler().run(null, null, null, "-Xlint:text-blocks", "-Werror", "-d", dir.toString(), file.toString()),
             "generated code does not compile:\n" + java);
         try (URLClassLoader loader = new URLClassLoader(new URL[] {dir.toUri().toURL()})) {
             Object t = loader.loadClass("T").getDeclaredConstructor().newInstance();
@@ -73,6 +73,15 @@ class EscapeRoundTripTest {
         assertEquals("<p>x\\\n<p>y\\\n", render("""
                     <p>x\\
                     <p>y\\
+            """));
+    }
+
+    @Test
+    void dedentedHtmlBlockCompilesWithoutWarnings() throws Exception {
+        assertEquals("  <link>\n</head>\n<body>\n", render("""
+                    <link>
+                  </head>
+                  <body>
             """));
     }
 

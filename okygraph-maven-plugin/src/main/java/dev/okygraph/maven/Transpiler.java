@@ -2,6 +2,7 @@ package dev.okygraph.maven;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -134,10 +135,10 @@ public class Transpiler {
     /** Drains anything pending before new content is written: cached HTML lines, then the line indent. */
     private void flush() throws IOException {
         if (!htmlCache.isEmpty()) {
-            String cachedIndent = getIndent(htmlCache.getFirst());
-                if (htmlCache.size() == 1) {
-                    writer.append(cachedIndent).append("html(\"").append(escape(htmlCache.getFirst().strip())).append("\\n\");\n");
-                } else {
+            String cachedIndent = shallowestIndent();
+            if (htmlCache.size() == 1) {
+                writer.append(cachedIndent).append("html(\"").append(escape(htmlCache.getFirst().strip())).append("\\n\");\n");
+            } else {
                 writer.append(cachedIndent).append("html(\"\"\"\n");
                 for (String l : htmlCache) {
                     writer.append(escapeBlock(l)).append("\n");
@@ -206,6 +207,11 @@ public class Transpiler {
             flush();
         }
         seenTemplateToken = true;
+    }
+
+    /** Indent of the least indented cached line: a text block closed deeper than one of its lines makes javac warn. */
+    private String shallowestIndent() {
+        return htmlCache.stream().map(this::getIndent).min(Comparator.comparingInt(String::length)).get();
     }
 
     private String getIndent(String line) {
