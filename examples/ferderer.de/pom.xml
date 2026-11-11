@@ -112,6 +112,22 @@
 
         <plugins>
             <plugin>
+                <groupId>dev.okygraph</groupId>
+                <artifactId>okygraph-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <framework>SPRING</framework>
+                    <baseClassPackage>de.ferderer.site</baseClassPackage>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>transpile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
