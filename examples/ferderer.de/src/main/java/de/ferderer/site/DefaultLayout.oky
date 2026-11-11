@@ -35,10 +35,10 @@ public abstract class DefaultLayout extends OkyTemplate {
             <header>
               <h1>Vadim Ferderer</h1>
               <nav>
-                <a href="/" aria-label="{t("nav.home")}">{t("nav.home")}</a>
-                <a href="/blog" aria-label="{t("nav.blog")}">{t("nav.blog")}</a>
-                <a href="/projects" aria-label="{t("nav.projects")}">{t("nav.projects")}</a>
-                <a href="/about" aria-label="{t("nav.about")}">{t("nav.about")}</a>
+                <a href="/" aria-label="{attr(t("nav.home"))}">{t("nav.home")}</a>
+                <a href="/blog" aria-label="{attr(t("nav.blog"))}">{t("nav.blog")}</a>
+                <a href="/projects" aria-label="{attr(t("nav.projects"))}">{t("nav.projects")}</a>
+                <a href="/about" aria-label="{attr(t("nav.about"))}">{t("nav.about")}</a>
               </nav>
             </header>
             <main>

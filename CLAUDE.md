@@ -25,7 +25,7 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 
 ## Current state
 
-- The plugin has 361 LOC in 5 Java files (`OkygraphMojo` 87, `Transpiler` 188, `TokenPattern` 58, `ParsingContext` 15, `TokenType` 13; without blank and comment lines). `OkyTemplate` has 114 LOC.
+- The plugin has 361 LOC in 5 Java files (`OkygraphMojo` 87, `Transpiler` 188, `TokenPattern` 58, `ParsingContext` 15, `TokenType` 13; without blank and comment lines). `OkyTemplate` has 117 LOC.
 - `Transpiler` is the tokenizer and the emitter in one class (ADR-0115). It works line by line with `TokenPattern` regexes and a flat `ParsingContext` state machine (ADR-0059, ADR-0072). It emits `html()`/`write()` chains and text blocks in one streaming pass (ADR-0060, ADR-0062).
 - `Transpiler` handles indentation via `saveIndent`/`writeIndent`/`flush` (ADR-0102), try/catch writer-stack injection (ADR-0087) and Unicode escapes (ADR-0057). CRLF/CR line endings are normalized first (ADR-0111).
 - The mojo transpiles all `.oky` files on every run, without timestamp check (ADR-0112: timestamps miss changes in base classes and layouts; a full run takes about 9 ms in Sci-Life). It logs `Transpiled N .oky files in X ms`.
@@ -44,9 +44,9 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
   - no TRY context; the CATCH context uses `CATCH_OPS` `(?:final\b\s*|[@.,|()])+`
   - the catch declaration ends at `{` in the CATCH context; there is no `CATCH_END`
 - Static HTML goes out via `html()`: a single line as `html("...\n")`, multiple lines as a text block. Fragmented lines are chained, e.g. `html(...).write(expr)`. Text blocks open and close at the shallowest line indent (ADR-0120); output indentation is best effort.
-- `write(String)` HTML-escapes `&`, `<`, `>`. Primitives are not escaped. Unescaped output uses only `{raw(x)}` with `record Raw`. There is no `write(Object)`, so a missing overload fails compilation. `html()`/`write()` are public (protected methods are not callable on a chain's return value).
+- `write(String)` HTML-escapes `&`, `<`, `>`; inside a quoted attribute the author writes `{attr(x)}`, which also escapes `"` and `'` and returns a `Raw` (ADR-0121). Primitives are not escaped. Unescaped output uses only `{raw(x)}` with `record Raw`. There is no `write(Object)`, so a missing overload fails compilation. `html()`/`write()` are public (protected methods are not callable on a chain's return value).
 - In HTML, `` \` `` and `\{` print a backtick and a brace; every other backslash is literal (ADR-0118). Generated text blocks encode backslashes and `"""`.
-- MVP escaping is HTML-only. Move JS/CSS into external files.
+- No JS/CSS/URL escaping helpers and no context detection yet (ADR-0121): the author chooses text, `attr` or `raw`; move JS/CSS into external files.
 - For try/catch in templates, emit:
   - `this.pushBuffer()` after `try {`
   - `this.commitBuffer()` before `} catch`

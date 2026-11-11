@@ -7,8 +7,8 @@ public abstract class Layout extends OkyTemplate {
     protected Raw csrfInput() {
         CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         if (token == null) return raw("");
-        return raw("<input type=\"hidden\" name=\"" + token.getParameterName()
-            + "\" value=\"" + token.getToken() + "\">");
+        return raw("<input type=\"hidden\" name=\"" + attr(token.getParameterName()).value()
+            + "\" value=\"" + attr(token.getToken()).value() + "\">");
     }
 
     public void simpleLayout(Content meta, Content body) {`

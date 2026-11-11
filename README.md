@@ -28,7 +28,7 @@ protected void render() {`
         `}`
     </ul>
     `try {`
-        <img src="{user.getAvatar()}">
+        <img src="{attr(user.getAvatar())}">
     `} catch (AppException e) {`
         <img src="/img/defaultAvatar.png">
     `}`
@@ -38,6 +38,10 @@ protected void render() {`
 `try/catch` works in templates because it is just Java: output written inside a failed `try` block is discarded.
 
 To print a literal backtick or `{` in HTML, escape it with a backslash: `` \` `` and `\{`. Other backslashes are literal.
+
+### Escaping
+
+`{expr}` escapes `&`, `<` and `>`, which is right for text. Inside a quoted attribute write `{attr(expr)}`: it also escapes `"` and `'`. `{raw(expr)}` prints unescaped HTML. Okygraph does not guess the context, so choosing `attr` is the template author's job. There is no JS or CSS escaping yet: keep scripts and styles in their own files.
 
 The Maven plugin transpiles this to pure Java at compile time. The result is a regular Java class — fully type-safe, debuggable, refactorable in any IDE, optimizable by the JIT.
 
@@ -79,8 +83,8 @@ public abstract class Layout extends OkyTemplate {
     protected Raw csrfInput() {
         CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         if (token == null) return raw("");
-        return raw("<input type=\"hidden\" name=\"" + token.getParameterName()
-            + "\" value=\"" + token.getToken() + "\">");
+        return raw("<input type=\"hidden\" name=\"" + attr(token.getParameterName()).value()
+            + "\" value=\"" + attr(token.getToken()).value() + "\">");
     }
 }
 ```

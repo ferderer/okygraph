@@ -90,6 +90,11 @@ public abstract class OkyTemplate implements View {
 
     protected static Raw raw(String s) { return new Raw(s); }
 
+    /** Value inside a quoted HTML attribute: escapes &, <, > and both quote characters. Use {attr(x)} there instead of {x}. */
+    protected static Raw attr(String s) {
+        return s == null ? null : new Raw(escape(s).replace("\"", "&quot;").replace("'", "&#39;"));
+    }
+
     public record Raw(String value) {}
 
     @FunctionalInterface
@@ -145,7 +150,7 @@ public abstract class OkyTemplate implements View {
 
     // ── Internal ─────────────────────────────────────────────────────────────
 
-    private String escape(String s) {
+    private static String escape(String s) {
         return s.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;");

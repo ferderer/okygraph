@@ -17,7 +17,6 @@ Decisions that shape Okygraph, in [MADR](https://adr.github.io/madr/) form. The 
 | [0086](0086-framework-integration-via-maven-plugin-parameter-instead-of.md) | Framework integration via Maven plugin parameter instead of Spring Boot starter |
 | [0087](0087-writer-stack-with-response-writer-as-root.md) | Writer stack with response writer as root |
 | [0089](0089-only-raw-x-as-the-syntax-for-unescaped-output.md) | Only {raw(x)} as the syntax for unescaped output |
-| [0090](0090-mvp-html-escaping-only-move-js-css-out.md) | MVP: HTML escaping only, move JS/CSS out |
 | [0091](0091-i18n-helper-in-defaultlayout-as-a-documented-template.md) | i18n helper in DefaultLayout as a documented template |
 | [0092](0092-layout-as-a-method-with-content-lambdas-instead-of-overridin.md) | Layout as a method with Content lambdas instead of overriding render() |
 | [0102](0102-indent-handling-via-saveindent-writeindent-and-central-flush.md) | Indent handling via saveIndent/writeIndent and central flush() |
@@ -32,3 +31,4 @@ Decisions that shape Okygraph, in [MADR](https://adr.github.io/madr/) form. The 
 | [0118](0118-html-escapes-only-backtick-and-brace-other-backslashes-are-literal.md) | HTML escapes: only \` and \{ are escapes, every other backslash is literal |
 | [0119](0119-template-regions-enter-java-scopes-via-a-grammar-injection.md) | Template regions enter Java scopes via a grammar injection |
 | [0120](0120-text-blocks-are-opened-and-closed-at-the-shallowest-line-indent.md) | Text blocks are opened and closed at the shallowest line indent |
+| [0121](0121-escaping-text-by-default-attr-for-quoted-attribute-values.md) | Escaping: text by default, attr() for quoted attribute values |
