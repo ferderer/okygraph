@@ -26,7 +26,8 @@ public abstract class OkyTemplate implements View {
 
     private static final Logger log = LoggerFactory.getLogger(OkyTemplate.class);
 
-    private final Deque<Object> writerStack = new ArrayDeque<>(); // Writer | StringWriter
+    private final Deque<PrintWriter> writers = new ArrayDeque<>(); // the response writer, then one per open try block
+    private final Deque<StringWriter> buffers = new ArrayDeque<>(); // what the open try blocks have written so far
     private PrintWriter out;
     protected HttpServletRequest  request;
     protected HttpServletResponse response;
@@ -42,9 +43,10 @@ public abstract class OkyTemplate implements View {
         res.setCharacterEncoding("UTF-8");
         this.request  = req;
         this.response = res;
-        writerStack.clear();
-        out = new PrintWriter(res.getWriter(), true);
-        writerStack.push(out);
+        writers.clear();
+        buffers.clear();
+        out = res.getWriter();
+        writers.push(out);
         long start = System.nanoTime();
         render();
         log.debug("Rendered {} in {} µs", getClass().getSimpleName(), (System.nanoTime() - start) / 1_000);
@@ -106,19 +108,21 @@ public abstract class OkyTemplate implements View {
 
     protected void pushBuffer() {
         StringWriter sw = new StringWriter();
-        writerStack.push(sw);
-        out = new PrintWriter(sw, true);
+        buffers.push(sw);
+        out = new PrintWriter(sw);
+        writers.push(out);
     }
 
     protected void commitBuffer() throws IOException {
-        StringWriter completed = (StringWriter) writerStack.pop();
-        out = new PrintWriter((java.io.Writer) writerStack.peek(), true);
-        out.write(completed.toString());
+        writers.pop();
+        out = writers.peek();
+        out.write(buffers.pop().toString());
     }
 
     protected void discardBuffer() {
-        writerStack.pop();
-        out = new PrintWriter((java.io.Writer) writerStack.peek(), true);
+        writers.pop();
+        buffers.pop();
+        out = writers.peek();
     }
 
     // ── Formatters ───────────────────────────────────────────────────────────

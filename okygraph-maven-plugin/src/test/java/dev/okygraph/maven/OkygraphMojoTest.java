@@ -54,6 +54,7 @@ class OkygraphMojoTest {
         assertTrue(source.contains("public abstract class OkyTemplate implements View"));
         assertFalse(source.contains("${package}"));
         assertTrue(source.contains("protected static Raw attr(String s)"), "attribute escaping helper (ADR-0121)");
+        assertFalse(source.contains("new PrintWriter(res.getWriter()"), "the root writer is the response writer, not wrapped (ADR-0001, ADR-0087)");
         assertFalse(source.contains("org.springframework.security"), "base class must only need Spring MVC (ADR-0117)");
     }
 
