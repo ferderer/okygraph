@@ -1,10 +1,30 @@
 package de.ferderer.site;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+
 public class BlogView extends DefaultLayout {
+    record Entry(String slug, String title, Date posted, int words) {}
+
+    private static final List<Entry> ENTRIES = List.of(
+        new Entry("compile-time-templates", "Compile-time templates", Date.from(Instant.parse("2024-03-12T12:00:00Z")), 1250),
+        new Entry("escaping-by-context", "Escaping by context", Date.from(Instant.parse("2024-04-02T12:00:00Z")), 830),
+        new Entry("icu-messages", "Messages & plurals with ICU", Date.from(Instant.parse("2024-05-20T12:00:00Z")), 2100));
+
     @Override
     protected void render() {
-        layout("Blog", () -> {}, () -> {`
-            <h1>Blog</h1>
+        double minutes = ENTRIES.stream().mapToInt(Entry::words).average().orElse(0) / 200;
+        layout(t("nav.blog"), () -> {}, () -> {`
+            <h1>{t("nav.blog")}</h1>
+            <p>{t("blog.count", ENTRIES.size())}</p>
+            `for (Entry e : ENTRIES) {`
+            <article>
+              <h2><a href="/blog/{attr(e.slug())}">{e.title()}</a></h2>
+              <p>{t("blog.posted", e.posted(), e.words())}</p>
+            </article>
+            `}`
+            <p>{t("blog.average", number(minutes, 1))}</p>
         `});
     }
 }

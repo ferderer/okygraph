@@ -1,6 +1,15 @@
 package de.ferderer.site;
 
+import com.ibm.icu.number.LocalizedNumberFormatter;
+import com.ibm.icu.number.NumberFormatter;
+import com.ibm.icu.number.Precision;
+import com.ibm.icu.text.MessageFormat;
+import com.ibm.icu.util.ULocale;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 public abstract class DefaultLayout extends OkyTemplate {
@@ -9,9 +18,30 @@ public abstract class DefaultLayout extends OkyTemplate {
     private static final ResourceBundle.Control NO_FALLBACK =
         ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES);
 
-    /** i18n helper (ADR-0091): looks the key up in messages*.properties for the request locale. */
-    protected String t(String key) {
-        return ResourceBundle.getBundle("messages", LocaleContextHolder.getLocale(), NO_FALLBACK).getString(key);
+    // ICU number formatters are immutable and thread-safe: one per locale and number of decimals, created once.
+    private static final Map<String, LocalizedNumberFormatter> NUMBER_FORMATS = new ConcurrentHashMap<>();
+
+    // ICU message formats are not thread-safe: every thread keeps its own parsed patterns.
+    private static final ThreadLocal<Map<String, MessageFormat>> MESSAGE_FORMATS = ThreadLocal.withInitial(HashMap::new);
+
+    /**
+     * i18n helper (ADR-0091, ADR-0123): looks the key up in messages*.properties for the request locale. Without
+     * arguments the text is returned as it is; with arguments it is an ICU message ({0}, plural, date, number).
+     */
+    protected String t(String key, Object... args) {
+        Locale locale = LocaleContextHolder.getLocale();
+        String pattern = ResourceBundle.getBundle("messages", locale, NO_FALLBACK).getString(key);
+        if (args.length == 0) {
+            return pattern;
+        }
+        return MESSAGE_FORMATS.get().computeIfAbsent(locale + "|" + key, k -> new MessageFormat(pattern, locale)).format(args);
+    }
+
+    /** Number with a fixed count of decimals in the request locale (1234.5 gives 1,234.5 or 1.234,5). */
+    protected String number(double value, int decimals) {
+        Locale locale = LocaleContextHolder.getLocale();
+        return NUMBER_FORMATS.computeIfAbsent(locale + "|" + decimals,
+            k -> NumberFormatter.withLocale(ULocale.forLocale(locale)).precision(Precision.fixedFraction(decimals))).format(value).toString();
     }
 
     protected void layout(String title, Content meta, Content body) {`

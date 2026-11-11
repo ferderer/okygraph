@@ -91,6 +91,30 @@ public abstract class Layout extends OkyTemplate {
 
 Use it in a form as `{csrfInput()}`. See [`examples/sci-life`](examples/sci-life/src/main/java/art/scilife/common/web/Layout.oky).
 
+### Formatting and messages
+
+The base class does not format numbers, dates or messages. That needs a locale source, and creating a JDK formatter per call is the slowest way to format a number. Keep the formatters in your layout class, one per locale. With [ICU4J](https://unicode-org.github.io/icu/) (`com.ibm.icu:icu4j`), whose number formatters are immutable and thread-safe and whose message formats (plural, select, date, number) are not, so each thread keeps its own:
+
+```java
+private static final Map<String, LocalizedNumberFormatter> NUMBER_FORMATS = new ConcurrentHashMap<>();
+private static final ThreadLocal<Map<String, MessageFormat>> MESSAGE_FORMATS = ThreadLocal.withInitial(HashMap::new);
+
+protected String t(String key, Object... args) {
+    Locale locale = LocaleContextHolder.getLocale();
+    String pattern = ResourceBundle.getBundle("messages", locale).getString(key);
+    if (args.length == 0) return pattern;
+    return MESSAGE_FORMATS.get().computeIfAbsent(locale + "|" + key, k -> new MessageFormat(pattern, locale)).format(args);
+}
+
+protected String number(double value, int decimals) {
+    Locale locale = LocaleContextHolder.getLocale();
+    return NUMBER_FORMATS.computeIfAbsent(locale + "|" + decimals,
+        k -> NumberFormatter.withLocale(ULocale.forLocale(locale)).precision(Precision.fixedFraction(decimals))).format(value).toString();
+}
+```
+
+With `blog.count={0, plural, =0 {No articles yet} one {# article} other {# articles}}` in `messages.properties`, a template writes `{t("blog.count", entries.size())}` and `{number(minutes, 1)}`. The complete version, with German messages, is in [`examples/ferderer.de`](examples/ferderer.de/src/main/java/de/ferderer/site/DefaultLayout.oky) and [`BlogView.oky`](examples/ferderer.de/src/main/java/de/ferderer/site/BlogView.oky).
+
 ## Why
 
 Every Java template engine adds a runtime layer: expression evaluation, caching, view resolution, framework integration. Okygraph removes all of it.

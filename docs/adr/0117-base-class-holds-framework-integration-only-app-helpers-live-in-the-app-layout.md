@@ -16,7 +16,7 @@ The Spring `OkyTemplate` came from Sci-Life and contained `csrfInput()`, which i
 
 ## Decision Outcome
 
-Chosen option: The generated base class contains only what the framework integration needs: rendering into the response with content type and encoding, the `html()`/`write()` overloads, `raw()`/`Content`, the writer stack for try/catch, and the formatters (ADR-0091). Its dependencies are Spring MVC, the Servlet API and SLF4J. Application helpers that need further libraries, such as a CSRF hidden field for Spring Security, go into the app's own layout class (`Layout`/`DefaultLayout`, or an intermediate class). The documentation shows the CSRF helper as a recipe.
+Chosen option: The generated base class contains only what the framework integration needs: rendering into the response with content type and encoding, the `html()`/`write()` overloads, `raw()`/`Content`, and the writer stack for try/catch. It does not format; formatting and messages are application helpers (ADR-0123). Its dependencies are Spring MVC, the Servlet API and SLF4J. Application helpers that need further libraries, such as a CSRF hidden field for Spring Security, go into the app's own layout class (`Layout`/`DefaultLayout`, or an intermediate class). The documentation shows the CSRF helper as a recipe.
 
 Rationale: The base class is a minimal, framework-level contract. This is the same rule as ADR-0091, which keeps i18n out of `OkyTemplate`. The generated class lives in the user's source tree anyway and may be adapted there.
 

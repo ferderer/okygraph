@@ -33,3 +33,4 @@ Decisions that shape Okygraph, in [MADR](https://adr.github.io/madr/) form. The 
 | [0120](0120-text-blocks-are-opened-and-closed-at-the-shallowest-line-indent.md) | Text blocks are opened and closed at the shallowest line indent |
 | [0121](0121-escaping-text-by-default-attr-for-quoted-attribute-values.md) | Escaping: text by default, attr() for quoted attribute values |
 | [0122](0122-standalone-base-class-renders-into-the-writer-it-is-given.md) | STANDALONE base class: renders into the Writer it is given, no framework types |
+| [0123](0123-formatting-and-messages-are-application-helpers-not-part-of-the-base-class.md) | Formatting and messages are application helpers, not part of the base class |

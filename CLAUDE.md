@@ -10,7 +10,7 @@ okygraph-maven-plugin/            Maven plugin, standard layout (published libra
   src/main/resources/base-classes/    SPRING.template, STANDALONE.template = OkyTemplate with ${package}
   src/test/java/dev/okygraph/maven/   pattern tests (one class per group) + TranspilerTest
 okygraph-vscode/                  VS Code extension phase 1 (grammar + snippets, no build)
-examples/ferderer.de/             Spring Boot site using the plugin (DefaultLayout with t(key), five page templates)
+examples/ferderer.de/             Spring Boot site using the plugin (DefaultLayout with ICU4J t(key, args) and number(), five page templates)
 examples/sci-life/                Sci-Life templates (Layout, LoginView, LandingView)
 docs/adr/                        architecture decision records (ADR-NNNN in this file refer to them)
 ```
@@ -25,7 +25,7 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 
 ## Current state
 
-- The plugin has 361 LOC in 5 Java files (`OkygraphMojo` 87, `Transpiler` 188, `TokenPattern` 58, `ParsingContext` 15, `TokenType` 13; without blank and comment lines). `OkyTemplate` has 117 LOC (`SPRING`) and 79 LOC (`STANDALONE`).
+- The plugin has 361 LOC in 5 Java files (`OkygraphMojo` 87, `Transpiler` 188, `TokenPattern` 58, `ParsingContext` 15, `TokenType` 13; without blank and comment lines). `OkyTemplate` has 92 LOC (`SPRING`) and 79 LOC (`STANDALONE`); neither formats anything (ADR-0123).
 - `Transpiler` is the tokenizer and the emitter in one class (ADR-0115). It works line by line with `TokenPattern` regexes and a flat `ParsingContext` state machine (ADR-0059, ADR-0072). It emits `html()`/`write()` chains and text blocks in one streaming pass (ADR-0060, ADR-0062).
 - `Transpiler` handles indentation via `saveIndent`/`writeIndent`/`flush` (ADR-0102), try/catch writer-stack injection (ADR-0087) and Unicode escapes (ADR-0057). CRLF/CR line endings are normalized first (ADR-0111).
 - The mojo transpiles all `.oky` files on every run, without timestamp check (ADR-0112: timestamps miss changes in base classes and layouts; a full run takes about 9 ms in Sci-Life). It logs `Transpiled N .oky files in X ms`.
@@ -54,7 +54,7 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 
   The writer-stack root is the response writer.
 - `.oky` files sit next to `.java` files in `src/main/java`. Output goes to `target/generated-sources` with the package tree, and the mojo registers it as a compile source root (ADR-0113). IDEs may still need build-helper-maven-plugin.
-- The generated base class holds framework integration only (Spring MVC, Servlet API, SLF4J). App helpers that need other libraries, e.g. `csrfInput()` for Spring Security, belong in the app's layout class (ADR-0117, like i18n in ADR-0091).
+- The generated base class holds framework integration only (Spring MVC, Servlet API, SLF4J). App helpers belong in the app's layout class (ADR-0117, like i18n in ADR-0091): `csrfInput()` for Spring Security, and number and message formatting, which the base class does not do (ADR-0123); `examples/ferderer.de` shows an ICU4J version with one formatter per locale.
 - The mojo requires `framework` (enum, upper case: `SPRING`, `QUARKUS`, `MICRONAUT`, `STANDALONE`) and `baseClassPackage`. No runtime JARs and no Spring Boot starter.
 - Normalize CRLF/CR, then resolve Unicode escapes before tokenizing (ADR-0111). On syntax errors, report the line, the column and a `^` marker.
 - Pattern tests use regions (start at 0 and mid-line), with one test class per pattern group. Avoid `@CsvSource` for char literals.

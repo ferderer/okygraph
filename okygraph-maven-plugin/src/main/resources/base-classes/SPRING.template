@@ -5,20 +5,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.NumberFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.View;
 
@@ -123,33 +115,6 @@ public abstract class OkyTemplate implements View {
         writers.pop();
         buffers.pop();
         out = writers.peek();
-    }
-
-    // ── Formatters ───────────────────────────────────────────────────────────
-
-    protected String formatDate(LocalDate date, FormatStyle style) {
-        return DateTimeFormatter.ofLocalizedDate(style)
-            .withLocale(LocaleContextHolder.getLocale())
-            .format(date);
-    }
-
-    protected String formatDateTime(Instant instant, FormatStyle style) {
-        return DateTimeFormatter.ofLocalizedDateTime(style)
-            .withLocale(LocaleContextHolder.getLocale())
-            .format(LocalDateTime.ofInstant(instant, LocaleContextHolder.getTimeZone().toZoneId()));
-    }
-
-    protected String formatTime(Instant instant, FormatStyle style) {
-        return DateTimeFormatter.ofLocalizedTime(style)
-            .withLocale(LocaleContextHolder.getLocale())
-            .format(LocalTime.ofInstant(instant, LocaleContextHolder.getTimeZone().toZoneId()));
-    }
-
-    protected String format(Double number, int minDecimals, int maxDecimals) {
-        NumberFormat nf = NumberFormat.getInstance(LocaleContextHolder.getLocale());
-        nf.setMinimumFractionDigits(minDecimals);
-        nf.setMaximumFractionDigits(maxDecimals);
-        return nf.format(number == null ? 0.0 : number);
     }
 
     // ── Internal ─────────────────────────────────────────────────────────────
