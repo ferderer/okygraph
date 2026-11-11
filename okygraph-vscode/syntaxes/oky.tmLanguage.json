@@ -4,9 +4,15 @@
   "scopeName": "source.oky",
   "fileTypes": ["oky"],
   "patterns": [
-    { "include": "#template-region" },
     { "include": "source.java" }
   ],
+  "injections": {
+    "L:source.oky - meta.embedded.html.oky - meta.embedded.java.oky - string - comment": {
+      "patterns": [
+        { "include": "#template-region" }
+      ]
+    }
+  },
   "repository": {
     "template-region": {
       "name": "meta.embedded.html.oky",
