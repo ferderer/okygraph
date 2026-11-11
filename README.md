@@ -115,7 +115,7 @@ The goal was to find the minimum surface area for a template engine and remove e
 ```
 okygraph-maven-plugin/   the Maven plugin (tokenizer/transpiler, mojo, Spring base-class template)
 okygraph-vscode/         VS Code extension: TextMate grammar and snippets for .oky
-examples/                ferderer.de (Spring Boot site skeleton), sci-life (templates)
+examples/                ferderer.de (Spring Boot site using the plugin), sci-life (templates)
 docs/                    ADRs, ideas, insights, specs, history
 ```
 
