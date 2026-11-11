@@ -1,6 +1,18 @@
 package de.ferderer.site;
 
+import java.util.ResourceBundle;
+import org.springframework.context.i18n.LocaleContextHolder;
+
 public abstract class DefaultLayout extends OkyTemplate {
+
+    // No fallback to the JVM's default locale: a request for a missing language gets messages.properties.
+    private static final ResourceBundle.Control NO_FALLBACK =
+        ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES);
+
+    /** i18n helper (ADR-0091): looks the key up in messages*.properties for the request locale. */
+    protected String t(String key) {
+        return ResourceBundle.getBundle("messages", LocaleContextHolder.getLocale(), NO_FALLBACK).getString(key);
+    }
 
     protected void layout(String title, Content meta, Content body) {`
         <!doctype html>
@@ -23,10 +35,10 @@ public abstract class DefaultLayout extends OkyTemplate {
             <header>
               <h1>Vadim Ferderer</h1>
               <nav>
-                <a href="/" aria-label="Home">Home</a>
-                <a href="/blog" aria-label="Blog">Blog</a>
-                <a href="/projects" aria-label="Projects">Projects</a>
-                <a href="/about" aria-label="About Me">About Me</a>
+                <a href="/" aria-label="{t("nav.home")}">{t("nav.home")}</a>
+                <a href="/blog" aria-label="{t("nav.blog")}">{t("nav.blog")}</a>
+                <a href="/projects" aria-label="{t("nav.projects")}">{t("nav.projects")}</a>
+                <a href="/about" aria-label="{t("nav.about")}">{t("nav.about")}</a>
               </nav>
             </header>
             <main>
