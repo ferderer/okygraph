@@ -140,7 +140,7 @@ public class Transpiler {
                 } else {
                 writer.append(cachedIndent).append("html(\"\"\"\n");
                 for (String l : htmlCache) {
-                    writer.append(l).append("\n");
+                    writer.append(escapeBlock(l)).append("\n");
                 }
                 writer.append(cachedIndent).append("\"\"\");\n");
             }
@@ -212,6 +212,11 @@ public class Transpiler {
         int i = 0;
         while (i < line.length() && (line.charAt(i) == ' ' || line.charAt(i) == '\t')) ++i;
         return line.substring(0, i);
+    }
+
+    /** Text block content: Java reads backslashes here, and """ would end the block. */
+    private String escapeBlock(String s) {
+        return s.replace("\\", "\\\\").replace("\"\"\"", "\"\"\\\"");
     }
 
     private String escape(String s) {
