@@ -1,0 +1,10 @@
+package de.ferderer.site;
+
+public class HomeView extends DefaultLayout {
+    @Override
+    protected void render() {
+        layout("Home", () -> {}, () -> {`
+            <h1>Home</h1>
+        `});
+    }
+}

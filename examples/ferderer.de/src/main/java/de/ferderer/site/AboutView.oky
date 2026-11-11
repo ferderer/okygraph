@@ -1,0 +1,10 @@
+package de.ferderer.site;
+
+public class AboutView extends DefaultLayout {
+    @Override
+    protected void render() {
+        layout("About Me", () -> {}, () -> {`
+            <h1>About Me</h1>
+        `});
+    }
+}

@@ -1,0 +1,10 @@
+package de.ferderer.site;
+
+public class ProjectsView extends DefaultLayout {
+    @Override
+    protected void render() {
+        layout("Projects", () -> {}, () -> {`
+            <h1>Projects</h1>
+        `});
+    }
+}

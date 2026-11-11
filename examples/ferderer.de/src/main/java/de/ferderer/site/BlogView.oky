@@ -1,0 +1,10 @@
+package de.ferderer.site;
+
+public class BlogView extends DefaultLayout {
+    @Override
+    protected void render() {
+        layout("Blog", () -> {}, () -> {`
+            <h1>Blog</h1>
+        `});
+    }
+}
