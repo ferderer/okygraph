@@ -19,11 +19,18 @@
         "0": { "name": "punctuation.definition.template.oky" }
       },
       "patterns": [
+        { "include": "#escape" },
         { "include": "#expression" },
         { "include": "#html-comment" },
         { "include": "#html-opening-tag" },
         { "include": "#html-closing-tag" },
         { "include": "#html-entity" }
+      ]
+    },
+    "escape": {
+      "patterns": [
+        { "name": "constant.character.escape.oky", "match": "\\\\[`{]" },
+        { "match": "\\\\." }
       ]
     },
     "expression": {
@@ -106,6 +113,7 @@
         "0": { "name": "punctuation.definition.string.end.html" }
       },
       "patterns": [
+        { "include": "#escape" },
         { "include": "#expression" },
         { "include": "#html-entity" }
       ]
@@ -121,6 +129,7 @@
         "0": { "name": "punctuation.definition.string.end.html" }
       },
       "patterns": [
+        { "include": "#escape" },
         { "include": "#expression" },
         { "include": "#html-entity" }
       ]
