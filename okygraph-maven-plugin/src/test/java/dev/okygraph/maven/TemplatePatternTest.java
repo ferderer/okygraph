@@ -155,6 +155,7 @@ class TemplatePatternTest {
             {"Hello \\` escaped", "0", "Hello \\` escaped"},
             {"Value: \\{x\\}", "0", "Value: \\{x\\}"},
             {"Text\\\\more", "0", "Text\\\\more"},
+            {"Ends with \\", "0", "Ends with \\"},
             {"<div>", "0", "<div>"},
             {"Plain text `", "0", "Plain text "},
             {"Before {expr}", "0", "Before "},

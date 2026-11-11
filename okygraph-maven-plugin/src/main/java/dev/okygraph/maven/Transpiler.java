@@ -154,11 +154,11 @@ public class Transpiler {
             case HTML -> {
                 if (!value.isBlank()) {
                     if (value.equals(line.substring(indent.length()))) { // whole line -> defer into the text-block cache
-                        htmlCache.add(line);
+                        htmlCache.add(unescape(line));
                     }
                     else { // this is a HTML fragment - line with an expression
                         checkFragmentedLine();
-                        writer.append("html(\"").append(escape(value)).append("\")");
+                        writer.append("html(\"").append(escape(unescape(value))).append("\")");
                     }
                 }
             }
@@ -212,6 +212,11 @@ public class Transpiler {
         int i = 0;
         while (i < line.length() && (line.charAt(i) == ' ' || line.charAt(i) == '\t')) ++i;
         return line.substring(0, i);
+    }
+
+    /** In HTML only \` and \{ are escapes; any other backslash is literal. Inside one token each of them follows a backslash. */
+    private String unescape(String s) {
+        return s.replace("\\`", "`").replace("\\{", "{");
     }
 
     /** Text block content: Java reads backslashes here, and """ would end the block. */

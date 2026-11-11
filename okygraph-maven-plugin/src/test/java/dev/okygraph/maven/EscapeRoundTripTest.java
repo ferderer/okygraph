@@ -47,6 +47,36 @@ class EscapeRoundTripTest {
     }
 
     @Test
+    void escapedBacktickAndBraceInSingleLine() throws Exception {
+        assertEquals("<p>a`b {c} \\d</p>\n", render("""
+                    <p>a\\`b \\{c} \\d</p>
+            """));
+    }
+
+    @Test
+    void escapedBacktickAndBraceInHtmlBlock() throws Exception {
+        assertEquals("<p>a`b</p>\n<p>{c} \\\\`</p>\n", render("""
+                    <p>a\\`b</p>
+                    <p>\\{c} \\\\\\`</p>
+            """));
+    }
+
+    @Test
+    void escapedBacktickInFragment() throws Exception {
+        assertEquals("<p>a`b x \\d</p>\n", render("""
+                    <p>a\\`b {"x"} \\d</p>
+            """));
+    }
+
+    @Test
+    void trailingBackslashIsLiteral() throws Exception {
+        assertEquals("<p>x\\\n<p>y\\\n", render("""
+                    <p>x\\
+                    <p>y\\
+            """));
+    }
+
+    @Test
     void tripleQuotesInHtmlBlockStayLiteral() throws Exception {
         assertEquals("<p>say \"\"\"hi\"\"\"</p>\n<p>x</p>\n", render("""
                     <p>say \"\"\"hi\"\"\"</p>

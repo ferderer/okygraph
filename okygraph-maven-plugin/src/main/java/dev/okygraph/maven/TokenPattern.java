@@ -47,7 +47,7 @@ enum TokenPattern {
     TRY_START("`try\\s*\\{`", TokenType.TRY),
     CATCH_START("`\\}\\s*catch\\b", TokenType.CATCH),
     CATCH_OPS("(?:final\\b\\s*|[@.,|()])+", TokenType.JAVA_TOKEN),
-    HTML("(?:[^`{\\\\]|\\\\.)+", TokenType.HTML),
+    HTML("(?:[^`{\\\\]|\\\\.?)+", TokenType.HTML),
     TEXT_CONTENT("[^\"]+|\"(?!\"\")", TokenType.JAVA_TOKEN);
 
     public final Pattern pattern;
