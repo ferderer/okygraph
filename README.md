@@ -35,7 +35,7 @@ protected void render() {`
 `}
 ```
 
-No other Java template engine supports `try/catch` inside templates — because in Okygraph, it's just Java.
+`try/catch` works in templates because it is just Java: output written inside a failed `try` block is discarded.
 
 To print a literal backtick or `{` in HTML, escape it with a backslash: `` \` `` and `\{`. Other backslashes are literal.
 
@@ -61,6 +61,8 @@ The Maven plugin transpiles this to pure Java at compile time. The result is a r
     </executions>
 </plugin>
 ```
+
+> Not on Maven Central yet. Install the plugin locally first: `cd okygraph-maven-plugin && mvn install`.
 
 Run `mvn compile`. The plugin transpiles `.oky` files found under `src/main/java` to regular `.java` files in `target/generated-sources` and adds that directory to the compile sources. No Spring Boot starter required — the base class `OkyTemplate` implements `org.springframework.web.servlet.View` directly.
 
@@ -93,16 +95,16 @@ Every Java template engine adds a runtime layer: expression evaluation, caching,
 |---|---|---|---|
 | Hot path | ~0.03 ms | ~0.8 ms | ~7 ms |
 | Runtime deps | 0 | 1 | 8+ |
-| GraalVM native | ✓ | ✓ | ✗ |
-| try/catch in template | ✓ | ✗ | ✗ |
 
-There is no cold start — templates are Java methods, called like any other code. Performance advantage grows with template complexity: the JIT can inline everything.
+Okygraph's figure was measured on a view of a production app after JIT warm-up. The JTE and Thymeleaf figures and the dependency counts are rough estimates, not measurements; benchmarks will follow.
+
+There is no cold start — templates are Java methods, called like any other code. Because templates are plain Java, the JIT can inline everything.
 
 ## Features
 
 - **Full Java inside templates** — conditions, loops, try/catch, method calls, lambdas
-- **Framework-agnostic** — switch `<framework>` to target Spring, Quarkus, Micronaut, or standalone
-- **Zero runtime overhead** — transpiles to bytecode at compile time
+- **Framework-neutral design** — `<framework>` selects the generated base class; only `SPRING` exists so far
+- **No runtime template engine** — templates are transpiled to Java source at compile time
 - **Zero dependencies** — the generated code depends only on what you choose
 - **IDE support** — refactoring, go-to-definition, and debugging work as expected
 
@@ -116,7 +118,7 @@ The goal was to find the minimum surface area for a template engine and remove e
 okygraph-maven-plugin/   the Maven plugin (tokenizer/transpiler, mojo, Spring base-class template)
 okygraph-vscode/         VS Code extension: TextMate grammar and snippets for .oky
 examples/                ferderer.de (Spring Boot site using the plugin), sci-life (templates)
-docs/                    ADRs, ideas, insights, specs, history
+docs/adr/                architecture decision records
 ```
 
 ## Building
