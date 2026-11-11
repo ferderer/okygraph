@@ -37,6 +37,8 @@ protected void render() {`
 
 No other Java template engine supports `try/catch` inside templates — because in Okygraph, it's just Java.
 
+To print a literal backtick or `{` in HTML, escape it with a backslash: `` \` `` and `\{`. Other backslashes are literal.
+
 The Maven plugin transpiles this to pure Java at compile time. The result is a regular Java class — fully type-safe, debuggable, refactorable in any IDE, optimizable by the JIT.
 
 ## Setup
