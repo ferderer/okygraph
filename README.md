@@ -68,9 +68,9 @@ The Maven plugin transpiles this to pure Java at compile time. The result is a r
 
 > Not on Maven Central yet. Install the plugin locally first: `cd okygraph-maven-plugin && mvn install`.
 
-Run `mvn compile`. The plugin transpiles `.oky` files found under `src/main/java` to regular `.java` files in `target/generated-sources` and adds that directory to the compile sources. No Spring Boot starter required — the base class `OkyTemplate` implements `org.springframework.web.servlet.View` directly.
+Run `mvn compile`. The plugin transpiles `.oky` files found under `src/main/java` to regular `.java` files in `target/generated-sources` and adds that directory to the compile sources. No Spring Boot starter required — with `SPRING` the base class `OkyTemplate` implements `org.springframework.web.servlet.View` directly.
 
-On the first build the plugin also writes the base class `OkyTemplate.java` into `baseClassPackage` under `src/main/java` (`baseClassOutputDirectory`). It never overwrites an existing file, so you can adapt it; delete it to regenerate. Only `SPRING` has a base class template so far.
+On the first build the plugin also writes the base class `OkyTemplate.java` into `baseClassPackage` under `src/main/java` (`baseClassOutputDirectory`). It never overwrites an existing file, so you can adapt it; delete it to regenerate. `SPRING` and `STANDALONE` have a base class template so far. `STANDALONE` needs no framework at all: `new HomeView(model).render(writer)` renders into any `java.io.Writer` and uses it as it is.
 
 ### App helpers
 

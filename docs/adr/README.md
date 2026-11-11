@@ -32,3 +32,4 @@ Decisions that shape Okygraph, in [MADR](https://adr.github.io/madr/) form. The 
 | [0119](0119-template-regions-enter-java-scopes-via-a-grammar-injection.md) | Template regions enter Java scopes via a grammar injection |
 | [0120](0120-text-blocks-are-opened-and-closed-at-the-shallowest-line-indent.md) | Text blocks are opened and closed at the shallowest line indent |
 | [0121](0121-escaping-text-by-default-attr-for-quoted-attribute-values.md) | Escaping: text by default, attr() for quoted attribute values |
+| [0122](0122-standalone-base-class-renders-into-the-writer-it-is-given.md) | STANDALONE base class: renders into the Writer it is given, no framework types |

@@ -7,7 +7,7 @@ Okygraph is a minimal compile-time Java template engine delivered as a Maven plu
 ```
 okygraph-maven-plugin/            Maven plugin, standard layout (published library)
   src/main/java/dev/okygraph/maven/   OkygraphMojo, Transpiler, TokenPattern, ParsingContext, TokenType
-  src/main/resources/base-classes/    SPRING.template = OkyTemplate with ${package}
+  src/main/resources/base-classes/    SPRING.template, STANDALONE.template = OkyTemplate with ${package}
   src/test/java/dev/okygraph/maven/   pattern tests (one class per group) + TranspilerTest
 okygraph-vscode/                  VS Code extension phase 1 (grammar + snippets, no build)
 examples/ferderer.de/             Spring Boot site using the plugin (DefaultLayout with t(key), five page templates)
@@ -25,11 +25,11 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 
 ## Current state
 
-- The plugin has 361 LOC in 5 Java files (`OkygraphMojo` 87, `Transpiler` 188, `TokenPattern` 58, `ParsingContext` 15, `TokenType` 13; without blank and comment lines). `OkyTemplate` has 117 LOC.
+- The plugin has 361 LOC in 5 Java files (`OkygraphMojo` 87, `Transpiler` 188, `TokenPattern` 58, `ParsingContext` 15, `TokenType` 13; without blank and comment lines). `OkyTemplate` has 117 LOC (`SPRING`) and 79 LOC (`STANDALONE`).
 - `Transpiler` is the tokenizer and the emitter in one class (ADR-0115). It works line by line with `TokenPattern` regexes and a flat `ParsingContext` state machine (ADR-0059, ADR-0072). It emits `html()`/`write()` chains and text blocks in one streaming pass (ADR-0060, ADR-0062).
 - `Transpiler` handles indentation via `saveIndent`/`writeIndent`/`flush` (ADR-0102), try/catch writer-stack injection (ADR-0087) and Unicode escapes (ADR-0057). CRLF/CR line endings are normalized first (ADR-0111).
 - The mojo transpiles all `.oky` files on every run, without timestamp check (ADR-0112: timestamps miss changes in base classes and layouts; a full run takes about 9 ms in Sci-Life). It logs `Transpiled N .oky files in X ms`.
-- `generateBaseClass()` writes `OkyTemplate.java` from `base-classes/<FRAMEWORK>.template` into `baseClassPackage` (default under `src/main/java`), only if the file does not exist yet. Only Spring has a template; other frameworks fail with a clear error.
+- `generateBaseClass()` writes `OkyTemplate.java` from `base-classes/<FRAMEWORK>.template` into `baseClassPackage` (default under `src/main/java`), only if the file does not exist yet. Only `SPRING` and `STANDALONE` have a template; other frameworks fail with a clear error. `STANDALONE` renders into the `java.io.Writer` it is given (`render(Writer)`), wraps and buffers nothing, reports I/O errors as `UncheckedIOException`, and has no formatters (ADR-0122).
 - The VS Code extension has phase 1 done: TextMate grammar with custom HTML patterns (ADR-0110), the template region injected into all Java scopes (ADR-0119), and snippets. An LSP is planned later.
 - Measured render time: about 30 µs warm, 655 µs cold (Sci-Life LoginView).
 

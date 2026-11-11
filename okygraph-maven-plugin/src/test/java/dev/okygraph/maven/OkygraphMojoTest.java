@@ -59,6 +59,20 @@ class OkygraphMojoTest {
     }
 
     @Test
+    void generatesStandaloneBaseClassWithoutAnyFrameworkType() throws Exception {
+        writeOky("com/example/HomeView.oky", "class HomeView {}\n");
+        mojo(Framework.STANDALONE).execute();
+
+        String source = Files.readString(baseClass());
+        assertTrue(source.startsWith("package com.example.views;"), source.lines().findFirst().orElse(""));
+        assertTrue(source.contains("public abstract class OkyTemplate {"));
+        assertTrue(source.contains("public void render(Writer writer)"));
+        assertTrue(source.contains("protected static Raw attr(String s)"));
+        assertFalse(source.contains("${package}"));
+        assertFalse(source.matches("(?s).*import (org|jakarta|javax)\\..*"), "only java.* imports");
+    }
+
+    @Test
     void keepsExistingBaseClass() throws Exception {
         writeOky("com/example/HomeView.oky", "class HomeView {}\n");
         Files.createDirectories(baseClass().getParent());
