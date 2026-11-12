@@ -5,8 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -18,8 +16,20 @@ public abstract class OkyTemplate implements View {
 
     private static final Logger log = LoggerFactory.getLogger(OkyTemplate.class);
 
-    private final Deque<PrintWriter> writers = new ArrayDeque<>(); // the response writer, then one per open try block
-    private final Deque<StringWriter> buffers = new ArrayDeque<>(); // what the open try blocks have written so far
+    /** What an open try block has written so far; it knows the writer to return to and the block around it. */
+    private static final class Buffer {
+        final StringWriter content = new StringWriter();
+        final PrintWriter writer = new PrintWriter(content);
+        final PrintWriter parent;
+        final Buffer enclosing;
+
+        Buffer(PrintWriter parent, Buffer enclosing) {
+            this.parent = parent;
+            this.enclosing = enclosing;
+        }
+    }
+
+    private Buffer open; // the innermost open try block; most templates have none
     private PrintWriter out;
     protected HttpServletRequest  request;
     protected HttpServletResponse response;
@@ -35,10 +45,8 @@ public abstract class OkyTemplate implements View {
         res.setCharacterEncoding("UTF-8");
         this.request  = req;
         this.response = res;
-        writers.clear();
-        buffers.clear();
+        open = null;
         out = res.getWriter();
-        writers.push(out);
         long start = System.nanoTime();
         render();
         log.debug("Rendered {} in {} µs", getClass().getSimpleName(), (System.nanoTime() - start) / 1_000);
@@ -99,22 +107,20 @@ public abstract class OkyTemplate implements View {
     // ── Writer stack (try/catch injection) ───────────────────────────────────
 
     protected void pushBuffer() {
-        StringWriter sw = new StringWriter();
-        buffers.push(sw);
-        out = new PrintWriter(sw);
-        writers.push(out);
+        open = new Buffer(out, open);
+        out = open.writer;
     }
 
     protected void commitBuffer() throws IOException {
-        writers.pop();
-        out = writers.peek();
-        out.write(buffers.pop().toString());
+        Buffer buffer = open;
+        open = buffer.enclosing;
+        out = buffer.parent;
+        out.write(buffer.content.toString());
     }
 
     protected void discardBuffer() {
-        writers.pop();
-        buffers.pop();
-        out = writers.peek();
+        out = open.parent;
+        open = open.enclosing;
     }
 
     // ── Internal ─────────────────────────────────────────────────────────────

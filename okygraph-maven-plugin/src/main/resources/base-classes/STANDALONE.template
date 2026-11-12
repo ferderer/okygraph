@@ -4,22 +4,28 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 /** Base class of all templates, without any framework: a template renders into the Writer it is given. */
 public abstract class OkyTemplate {
 
-    private final Deque<Writer> writers = new ArrayDeque<>(); // the caller's writer, then one per open try block
-    private final Deque<StringWriter> buffers = new ArrayDeque<>(); // what the open try blocks have written so far
+    /** What an open try block has written so far; it knows the writer to return to and the block around it. */
+    private static final class Buffer extends StringWriter {
+        final Writer parent;
+        final Buffer enclosing;
+
+        Buffer(Writer parent, Buffer enclosing) {
+            this.parent = parent;
+            this.enclosing = enclosing;
+        }
+    }
+
+    private Buffer open; // the innermost open try block; most templates have none
     private Writer out;
 
     /** Renders into the writer as it is: nothing is wrapped, buffered or flushed. */
     public void render(Writer writer) throws Exception {
-        writers.clear();
-        buffers.clear();
+        open = null;
         out = writer;
-        writers.push(out);
         render();
     }
 
@@ -78,22 +84,20 @@ public abstract class OkyTemplate {
     // ── Writer stack (try/catch injection) ───────────────────────────────────
 
     protected void pushBuffer() {
-        StringWriter sw = new StringWriter();
-        buffers.push(sw);
-        out = sw;
-        writers.push(sw);
+        open = new Buffer(out, open);
+        out = open;
     }
 
     protected void commitBuffer() {
-        writers.pop();
-        out = writers.peek();
-        put(buffers.pop().toString());
+        Buffer buffer = open;
+        open = buffer.enclosing;
+        out = buffer.parent;
+        put(buffer.toString());
     }
 
     protected void discardBuffer() {
-        writers.pop();
-        buffers.pop();
-        out = writers.peek();
+        out = open.parent;
+        open = open.enclosing;
     }
 
     // ── Internal ─────────────────────────────────────────────────────────────
