@@ -102,23 +102,6 @@
             </plugin>
 
             <plugin>
-                <artifactId>maven-invoker-plugin</artifactId>
-                <version>3.9.1</version>
-                <configuration>
-                    <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-                    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>install</goal>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.4</version>
