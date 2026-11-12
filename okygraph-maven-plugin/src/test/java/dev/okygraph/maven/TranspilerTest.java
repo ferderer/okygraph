@@ -149,4 +149,12 @@ public class TranspilerTest {
     void testCrLineEndings() throws IOException {
         assertEquals(COMPLEX_TEST_JAVA, Transpiler.process(COMPLEX_TEST_OKY.replace("\n", "\r")));
     }
+
+    @Test
+    void unicodeEscapeIsResolvedOnlyWhenItsBackslashIsNotEscaped() throws IOException {
+        // JLS 3.3: \u0041 is an escape, \\u0041 is a backslash followed by u0041, \\\u0041 is a backslash and an escape
+        assertEquals("char a = 'A';", Transpiler.process("char a = '\\u0041';"));
+        assertEquals("String s = \"\\\\u0041\";", Transpiler.process("String s = \"\\\\u0041\";"));
+        assertEquals("String s = \"\\\\A\";", Transpiler.process("String s = \"\\\\\\u0041\";"));
+    }
 }

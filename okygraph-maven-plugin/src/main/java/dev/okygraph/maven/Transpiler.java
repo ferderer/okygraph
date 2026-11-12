@@ -21,13 +21,14 @@ public class Transpiler {
         return s.replace("\r\n", "\n").replace("\r", "\n");
     }
 
+    /** Unicode escapes as in JLS 3.3: a backslash starts one only if an even number of backslashes precedes it, so "\\u0041" stays. */
     private static String preprocessUnicode(String s) {
-        Matcher m = Pattern.compile("\\\\u+([0-9a-fA-F]{4})").matcher(s);
+        Matcher m = Pattern.compile("(?<!\\\\)((?:\\\\\\\\)*)\\\\u+([0-9a-fA-F]{4})").matcher(s);
         StringBuilder sb = new StringBuilder(s.length());
         int last = 0;
         while (m.find()) {
-            sb.append(s, last, m.start());
-            sb.appendCodePoint(Integer.parseInt(m.group(1), 16));
+            sb.append(s, last, m.start()).append(m.group(1));
+            sb.appendCodePoint(Integer.parseInt(m.group(2), 16));
             last = m.end();
         }
         return sb.append(s, last, s.length()).toString();
