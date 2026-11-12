@@ -63,3 +63,53 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 ## Decisions
 
 Architecture decisions are in [docs/adr](docs/adr/README.md). The ADR numbers in this file refer to them.
+
+## Review instructions
+
+### Philosophy: code is perfect when nothing can be taken away
+
+Review every change against one question: what can be removed without losing behavior?
+Treat added code as a cost that must justify itself.
+
+Flag as Important:
+- Abstractions with a single implementation, factories/builders/strategies with one caller, and
+  interfaces that exist only "for testing" or "for later".
+- Configuration, feature flags, parameters, or extension points that nothing uses today.
+- New dependencies where the JDK or Spring Boot already provides the capability.
+- Dead code, unused fields/methods/branches, commented-out code, speculative generality.
+- Layers that only delegate (pass-through services, DTO-to-DTO copies, wrapper classes).
+- A change that adds code where deleting or simplifying existing code would solve the same problem.
+
+Flag as Nit:
+- Redundant comments that restate the code, needless intermediate variables, overly defensive checks
+  for states the type system or callers already exclude.
+
+When flagging, always name what to delete or collapse, and show the smaller version.
+Do not praise. Do not suggest additions unless a correctness or security defect requires them.
+
+### Performance
+
+Flag as Important when a change plausibly affects runtime behavior at scale:
+- N+1 queries, lazy-loading inside loops, missing pagination or unbounded result sets.
+- Blocking calls on hot paths or inside transactions; transactions held open longer than needed.
+- Repeated work in loops (regex compilation, object mapper creation, reflection, string concatenation).
+- Unnecessary allocation, boxing, or stream pipelines in tight loops; collections with the wrong
+  complexity for their access pattern.
+- Missing indexes implied by new query predicates; over-fetching columns or entities.
+- Synchronization or shared mutable state that serializes concurrent work.
+
+Claims about performance need evidence: cite `file:line` and explain the cost in terms of
+complexity or I/O count. Do not report speculative micro-optimizations; prefer measurable
+wins (fewer queries, fewer round-trips, lower complexity class) over cosmetic ones.
+
+### Severity calibration
+
+- Important: correctness or security defects, performance problems as listed above, and
+  clear violations of "nothing left to remove".
+- Nit: style or minor redundancy. Cap nits at 3 per review.
+- Skip: generated files, lockfiles, and formatting handled by the formatter.
+
+### Output
+
+Lead with the verdict in one line. List findings by severity. If the change is already minimal
+and fast, say so in one sentence and stop.
