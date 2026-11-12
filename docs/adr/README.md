@@ -15,7 +15,6 @@ Decisions that shape Okygraph, in [MADR](https://adr.github.io/madr/) form. The 
 | [0062](0062-html-output-text-blocks-for-whole-lines-method-chaining-for.md) | HTML output: text blocks for whole lines, method chaining for fragments |
 | [0072](0072-tokenpattern-enum-with-match-method-based-on-regions-and-loo.md) | TokenPattern enum with match() method based on regions and lookingAt() |
 | [0086](0086-framework-integration-via-maven-plugin-parameter-instead-of.md) | Framework integration via Maven plugin parameter instead of Spring Boot starter |
-| [0087](0087-writer-stack-with-response-writer-as-root.md) | Writer stack with response writer as root |
 | [0089](0089-only-raw-x-as-the-syntax-for-unescaped-output.md) | Only {raw(x)} as the syntax for unescaped output |
 | [0091](0091-i18n-helper-in-defaultlayout-as-a-documented-template.md) | i18n helper in DefaultLayout as a documented template |
 | [0092](0092-layout-as-a-method-with-content-lambdas-instead-of-overridin.md) | Layout as a method with Content lambdas instead of overriding render() |
@@ -34,3 +33,4 @@ Decisions that shape Okygraph, in [MADR](https://adr.github.io/madr/) form. The 
 | [0122](0122-standalone-base-class-renders-into-the-writer-it-is-given.md) | STANDALONE base class: renders into the Writer it is given, no framework types |
 | [0123](0123-formatting-and-messages-are-application-helpers-not-part-of-the-base-class.md) | Formatting and messages are application helpers, not part of the base class |
 | [0124](0124-raw-and-attr-write-directly-clean-strings-are-written-whole.md) | raw() and attr() write directly; strings that need no escaping are written whole |
+| [0125](0125-try-blocks-buffer-into-a-try-with-resources-object-the-root-writer-stays-the-response-writer.md) | try blocks buffer into a try-with-resources object; the root writer stays the response writer |

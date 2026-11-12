@@ -6,7 +6,7 @@ date: 2026-11-11
 
 ## Context and Problem Statement
 
-`Framework.STANDALONE` existed in the plugin parameter, but only `SPRING` had a base class template, so a project without Spring (a library, a batch job, e-mail or report generation, tests) could not use the plugin, and the benchmark had to drive the Spring base class with stubs for the servlet request and response. The Spring base class also showed that a framework writer should not be wrapped (ADR-0001, ADR-0087).
+`Framework.STANDALONE` existed in the plugin parameter, but only `SPRING` had a base class template, so a project without Spring (a library, a batch job, e-mail or report generation, tests) could not use the plugin, and the benchmark had to drive the Spring base class with stubs for the servlet request and response. The Spring base class also showed that a framework writer should not be wrapped (ADR-0001, ADR-0125).
 
 ## Considered Options
 

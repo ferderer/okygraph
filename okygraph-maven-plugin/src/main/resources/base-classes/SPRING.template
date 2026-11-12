@@ -16,20 +16,6 @@ public abstract class OkyTemplate implements View {
 
     private static final Logger log = LoggerFactory.getLogger(OkyTemplate.class);
 
-    /** What an open try block has written so far; it knows the writer to return to and the block around it. */
-    private static final class Buffer {
-        final StringWriter content = new StringWriter();
-        final PrintWriter writer = new PrintWriter(content);
-        final PrintWriter parent;
-        final Buffer enclosing;
-
-        Buffer(PrintWriter parent, Buffer enclosing) {
-            this.parent = parent;
-            this.enclosing = enclosing;
-        }
-    }
-
-    private Buffer open; // the innermost open try block; most templates have none
     private PrintWriter out;
     protected HttpServletRequest  request;
     protected HttpServletResponse response;
@@ -45,7 +31,6 @@ public abstract class OkyTemplate implements View {
         res.setCharacterEncoding("UTF-8");
         this.request  = req;
         this.response = res;
-        open = null;
         out = res.getWriter();
         long start = System.nanoTime();
         render();
@@ -108,23 +93,29 @@ public abstract class OkyTemplate implements View {
         void render();
     }
 
-    // ── Writer stack (try/catch injection) ───────────────────────────────────
+    // ── try/catch in templates ───────────────────────────────────────────────
 
-    protected void pushBuffer() {
-        open = new Buffer(out, open);
-        out = open.writer;
+    /** The output of a try block. It reaches the page only if the block commits; close() always restores the writer. */
+    protected final class Buffer implements AutoCloseable {
+        private final StringWriter content = new StringWriter();
+        private final PrintWriter parent = out;
+
+        private Buffer() {
+            out = new PrintWriter(content);
+        }
+
+        public void commit() {
+            parent.write(content.toString());
+        }
+
+        @Override
+        public void close() {
+            out = parent;
+        }
     }
 
-    protected void commitBuffer() throws IOException {
-        Buffer buffer = open;
-        open = buffer.enclosing;
-        out = buffer.parent;
-        out.write(buffer.content.toString());
-    }
-
-    protected void discardBuffer() {
-        out = open.parent;
-        open = open.enclosing;
+    protected Buffer buffer() {
+        return new Buffer();
     }
 
     // ── Internal ─────────────────────────────────────────────────────────────

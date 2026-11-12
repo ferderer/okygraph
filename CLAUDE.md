@@ -17,7 +17,7 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 
 ## Build and test (verified 2026-11-11, JDK 25, Maven 3.9.16)
 
-- Plugin: `cd okygraph-maven-plugin && mvn -B verify` → 90 tests, all green; builds `target/okygraph-maven-plugin-1.0.0.jar`.
+- Plugin: `cd okygraph-maven-plugin && mvn -B verify` → 95 tests, all green; builds `target/okygraph-maven-plugin-1.0.0.jar`.
 - Release build: `mvn -B -Prelease -Dgpg.skip verify` builds plugin, sources and javadoc jars (verified). Publishing: `mvn -Prelease deploy` uploads to the Sonatype Central Portal via central-publishing-maven-plugin (needs a GPG key, a portal user token as server `central` in `~/.m2/settings.xml` and the verified namespace `dev.okygraph`; `autoPublish` is off, so the deployment is published in the portal). Not run yet.
 - VS Code extension: no build; check the JSON with `python3 -m json.tool <file>` for the four files in `okygraph-vscode/`.
 - `examples/ferderer.de`: uses the plugin (version 1.0.0 is not published yet, so first `cd okygraph-maven-plugin && mvn install`), then `mvn -B package` and `java -jar target/site-1.0.0.jar`; `/`, `/about`, `/projects`, `/blog` render through `DefaultLayout` (verified 2026-11-11).
@@ -25,9 +25,9 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 
 ## Current state
 
-- The plugin has 361 LOC in 5 Java files (`OkygraphMojo` 87, `Transpiler` 188, `TokenPattern` 58, `ParsingContext` 15, `TokenType` 13; without blank and comment lines). `OkyTemplate` has 95 LOC (`SPRING`) and 80 LOC (`STANDALONE`); neither formats anything (ADR-0123).
+- The plugin has 380 LOC in 5 Java files (`OkygraphMojo` 87, `Transpiler` 207, `TokenPattern` 58, `ParsingContext` 15, `TokenType` 13; without blank and comment lines). `OkyTemplate` has 108 LOC (`SPRING`) and 98 LOC (`STANDALONE`); neither formats anything (ADR-0123).
 - `Transpiler` is the tokenizer and the emitter in one class (ADR-0115). It works line by line with `TokenPattern` regexes and a flat `ParsingContext` state machine (ADR-0059, ADR-0072). It emits `html()`/`write()` chains and text blocks in one streaming pass (ADR-0060, ADR-0062).
-- `Transpiler` handles indentation via `saveIndent`/`writeIndent`/`flush` (ADR-0102), try/catch writer-stack injection (ADR-0087) and Unicode escapes (ADR-0057). CRLF/CR line endings are normalized first (ADR-0111).
+- `Transpiler` handles indentation via `saveIndent`/`writeIndent`/`flush` (ADR-0102), try-block buffer injection (ADR-0125) and Unicode escapes (ADR-0057). CRLF/CR line endings are normalized first (ADR-0111).
 - The mojo transpiles all `.oky` files on every run, without timestamp check (ADR-0112: timestamps miss changes in base classes and layouts; a full run takes about 9 ms in Sci-Life). It logs `Transpiled N .oky files in X ms`.
 - `generateBaseClass()` writes `OkyTemplate.java` from `base-classes/<FRAMEWORK>.template` into `baseClassPackage` (default under `src/main/java`), only if the file does not exist yet. Only `SPRING` and `STANDALONE` have a template; other frameworks fail with a clear error. `STANDALONE` renders into the `java.io.Writer` it is given (`render(Writer)`), wraps and buffers nothing, reports I/O errors as `UncheckedIOException`, and has no formatters (ADR-0122).
 - The VS Code extension has phase 1 done: TextMate grammar with custom HTML patterns (ADR-0110), the template region injected into all Java scopes (ADR-0119), and snippets. An LSP is planned later.
@@ -47,12 +47,12 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 - `write(String)` HTML-escapes `&`, `<`, `>` in one pass; inside a quoted attribute the author writes `{attr(x)}`, which also escapes `"` and `'` (ADR-0121); unescaped output is `{raw(x)}` (ADR-0089). `raw()` and `attr()` write immediately and return `this`, and `write(OkyTemplate)` accepts only `this`, so each must be the whole expression (ADR-0124). Primitives are not escaped. There is no `write(Object)`, so a missing overload fails compilation. `html()`/`write()` are public (protected methods are not callable on a chain's return value).
 - In HTML, `` \` `` and `\{` print a backtick and a brace; every other backslash is literal (ADR-0118). Generated text blocks encode backslashes and `"""`.
 - No JS/CSS/URL escaping helpers and no context detection yet (ADR-0121): the author chooses text, `attr` or `raw`; move JS/CSS into external files.
-- For try/catch in templates, emit:
-  - `this.pushBuffer()` after `try {`
-  - `this.commitBuffer()` before `} catch`
-  - `this.discardBuffer()` at the start of the catch block
+- For try/catch in templates, emit (ADR-0125):
+  - `try (var oky1 = this.buffer()) {` for `try {`; the number is the nesting depth of open try blocks
+  - `oky1.commit();` before `} catch`
+  - nothing at the start of the catch block: the buffer is local to the block and `close()` restores the writer
 
-  The writer-stack root is the response writer.
+  One catch clause per try (`catch (A | B e)`); a catch without a try is an error. The root writer is the response writer.
 - `.oky` files sit next to `.java` files in `src/main/java`. Output goes to `target/generated-sources` with the package tree, and the mojo registers it as a compile source root (ADR-0113). IDEs may still need build-helper-maven-plugin.
 - The generated base class holds framework integration only (Spring MVC, Servlet API, SLF4J). App helpers belong in the app's layout class (ADR-0117, like i18n in ADR-0091): `csrfInput()` for Spring Security, and number and message formatting, which the base class does not do (ADR-0123); `examples/ferderer.de` shows an ICU4J version with one formatter per locale.
 - The mojo requires `framework` (enum, upper case: `SPRING`, `QUARKUS`, `MICRONAUT`, `STANDALONE`) and `baseClassPackage`. No runtime JARs and no Spring Boot starter.

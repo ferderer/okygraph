@@ -1,8 +1,10 @@
 package dev.okygraph.maven;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -120,7 +122,10 @@ public class Transpiler {
     private final List<String> htmlCache = new ArrayList<>();
     private boolean seenTemplateToken = false;
 
-    private String tryIndent = "";
+    /** An open try block: the name of its buffer variable and the indent of its line. Names are numbered by nesting depth. */
+    private record Try(String name, String indent) {}
+
+    private final Deque<Try> tries = new ArrayDeque<>();
     private String indent = "";
 
     /** Captures the current line's leading whitespace and returns where its content starts. */
@@ -166,8 +171,8 @@ public class Transpiler {
                 }
             }
             case EXPRESSION_START -> {
-                if (context == ParsingContext.CATCH) { // CATCH_END semantics
-                    writer.append("{\n").append(tryIndent).append("    this.discardBuffer();");
+                if (context == ParsingContext.CATCH) { // the end of the catch declaration
+                    writer.append("{");
                 }
                 else {
                     checkFragmentedLine();
@@ -176,14 +181,19 @@ public class Transpiler {
             }
             case EXPRESSION_END -> writer.append(")");
             case TRY -> {
-                tryIndent = indent; // capture before flush() drains it
+                Try open = new Try("oky" + (tries.size() + 1), indent); // capture the indent before flush() drains it
+                tries.push(open);
                 flush();
-                writer.append("try {\n").append(tryIndent).append("    this.pushBuffer();");
+                writer.append("try (var ").append(open.name()).append(" = this.buffer()) {");
             }
             case CATCH -> {
+                Try open = tries.pollFirst();
+                if (open == null) {
+                    throw new IllegalStateException("catch without a try in the template");
+                }
                 indent = ""; // discard this line's own indent - align with the matching try instead
                 flush();
-                writer.append(tryIndent).append("    this.commitBuffer();\n").append(tryIndent).append("} catch");
+                writer.append(open.indent()).append("    ").append(open.name()).append(".commit();\n").append(open.indent()).append("} catch");
             }
             case BACKTICK -> flush();
             case NEWLINE -> {

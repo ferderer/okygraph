@@ -8,23 +8,10 @@ import java.io.Writer;
 /** Base class of all templates, without any framework: a template renders into the Writer it is given. */
 public abstract class OkyTemplate {
 
-    /** What an open try block has written so far; it knows the writer to return to and the block around it. */
-    private static final class Buffer extends StringWriter {
-        final Writer parent;
-        final Buffer enclosing;
-
-        Buffer(Writer parent, Buffer enclosing) {
-            this.parent = parent;
-            this.enclosing = enclosing;
-        }
-    }
-
-    private Buffer open; // the innermost open try block; most templates have none
     private Writer out;
 
     /** Renders into the writer as it is: nothing is wrapped, buffered or flushed. */
     public void render(Writer writer) throws Exception {
-        open = null;
         out = writer;
         render();
     }
@@ -85,23 +72,32 @@ public abstract class OkyTemplate {
         void render();
     }
 
-    // ── Writer stack (try/catch injection) ───────────────────────────────────
+    // ── try/catch in templates ───────────────────────────────────────────────
 
-    protected void pushBuffer() {
-        open = new Buffer(out, open);
-        out = open;
+    /** The output of a try block. It reaches the page only if the block commits; close() always restores the writer. */
+    protected final class Buffer extends StringWriter {
+        private final Writer parent = out;
+
+        private Buffer() {
+            out = this;
+        }
+
+        public void commit() {
+            try {
+                parent.write(toString());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        @Override
+        public void close() {
+            out = parent;
+        }
     }
 
-    protected void commitBuffer() {
-        Buffer buffer = open;
-        open = buffer.enclosing;
-        out = buffer.parent;
-        put(buffer.toString());
-    }
-
-    protected void discardBuffer() {
-        out = open.parent;
-        open = open.enclosing;
+    protected Buffer buffer() {
+        return new Buffer();
     }
 
     // ── Internal ─────────────────────────────────────────────────────────────

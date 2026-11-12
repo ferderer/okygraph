@@ -16,20 +16,6 @@ public abstract class OkyTemplate implements View {
 
     private static final Logger log = LoggerFactory.getLogger(OkyTemplate.class);
 
-    /** What an open try block has written so far; it knows the writer to return to and the block around it. */
-    private static final class Buffer {
-        final StringWriter content = new StringWriter();
-        final PrintWriter writer = new PrintWriter(content);
-        final PrintWriter parent;
-        final Buffer enclosing;
-
-        Buffer(PrintWriter parent, Buffer enclosing) {
-            this.parent = parent;
-            this.enclosing = enclosing;
-        }
-    }
-
-    private Buffer open; // the innermost open try block; most templates have none
     private PrintWriter out;
     protected HttpServletRequest  request;
     protected HttpServletResponse response;
@@ -45,7 +31,6 @@ public abstract class OkyTemplate implements View {
         res.setCharacterEncoding("UTF-8");
         this.request  = req;
         this.response = res;
-        open = null;
         out = res.getWriter();
         long start = System.nanoTime();
         render();
@@ -108,50 +93,42 @@ public abstract class OkyTemplate implements View {
         void render();
     }
 
-    // ── Writer stack (try/catch injection) ───────────────────────────────────
+    // ── try/catch in templates ───────────────────────────────────────────────
 
-    protected void pushBuffer() {
-        open = new Buffer(out, open);
-        out = open.writer;
+    /** The output of a try block. It reaches the page only if the block commits; close() always restores the writer. */
+    protected final class Buffer implements AutoCloseable {
+        private final StringWriter content = new StringWriter();
+        private final PrintWriter parent = out;
+
+        private Buffer() {
+            out = new PrintWriter(content);
+        }
+
+        public void commit() {
+            parent.write(content.toString());
+        }
+
+        @Override
+        public void close() {
+            out = parent;
+        }
     }
 
-    protected void commitBuffer() throws IOException {
-        Buffer buffer = open;
-        open = buffer.enclosing;
-        out = buffer.parent;
-        out.write(buffer.content.toString());
-    }
-
-    protected void discardBuffer() {
-        out = open.parent;
-        open = open.enclosing;
+    protected Buffer buffer() {
+        return new Buffer();
     }
 
     // ── Internal ─────────────────────────────────────────────────────────────
 
-    /** Writes s with & < > (in attributes also " and ') replaced; a string that needs nothing is written whole. */
+    /** Writes s with & < > (in attributes also " and ') replaced. Strings that need nothing, nearly all of them, are written whole. */
     private void escaped(String s, boolean attribute) {
-        if (clean(s, attribute)) {
-            out.write(s);
-            return;
-        }
-        int last = 0;
-        for (int i = 0, n = s.length(); i < n; i++) {
-            String entity = switch (s.charAt(i)) {
-                case '&' -> "&amp;";
-                case '<' -> "&lt;";
-                case '>' -> "&gt;";
-                case '"' -> attribute ? "&quot;" : null;
-                case '\'' -> attribute ? "&#39;" : null;
-                default -> null;
-            };
-            if (entity != null) {
-                out.write(s, last, i - last);
-                out.write(entity);
-                last = i + 1;
+        if (!clean(s, attribute)) {
+            s = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+            if (attribute) {
+                s = s.replace("\"", "&quot;").replace("'", "&#39;");
             }
         }
-        out.write(s, last, s.length() - last);
+        out.write(s);
     }
 
     /** Short strings: one loop. From 64 characters on the JDK's vectorized indexOf is faster (measured). */

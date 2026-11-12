@@ -91,12 +91,10 @@ public class TranspilerTest {
                 html("<li>").write(hobby).html("</li>").html("\\n");
             }
         html("</ul>\\n");
-        try {
-            this.pushBuffer();
+        try (var oky1 = this.buffer()) {
             html("<img src=\\"").write(user.getAvatar).html("\\">").html("\\n");
-            this.commitBuffer();
+            oky1.commit();
         } catch (AppException e) {
-            this.discardBuffer();
             html("<img src=\\"/img/defaultAvatar.png\\">\\n");
         }
         html(\"\"\"
@@ -108,6 +106,38 @@ public class TranspilerTest {
     @Test
     void testComplexTemplate() throws IOException {
         assertEquals(COMPLEX_TEST_JAVA, Transpiler.process(COMPLEX_TEST_OKY));
+    }
+
+    @Test
+    void nestedTryBlocksGetDifferentBufferNamesAndSequentialOnesReuseThem() throws IOException {
+        String oky = """
+            void m() {`
+                `try {`
+                `try {`
+                <i>x</i>
+                `} catch (IllegalStateException e) {`
+                <b>inner</b>
+                `}`
+                `} catch (Exception e) {`
+                <b>outer</b>
+                `}`
+                `try {`
+                <i>y</i>
+                `} catch (Exception e) {`
+                <b>again</b>
+                `}`
+            `}
+            """;
+        String java = Transpiler.process(oky);
+        assertTrue(java.contains("try (var oky1 = this.buffer()) {"), java);
+        assertTrue(java.contains("try (var oky2 = this.buffer()) {"), java);
+        assertTrue(java.indexOf("oky2.commit();") < java.indexOf("oky1.commit();"), "the inner block commits first: " + java);
+        assertEquals(2, java.split("try \\(var oky1 = ", -1).length - 1, "the second sequential block reuses oky1: " + java);
+    }
+
+    @Test
+    void catchWithoutTryIsReported() {
+        assertThrows(IllegalStateException.class, () -> Transpiler.process("void m() {`\n`} catch (Exception e) {`\n`}\n"));
     }
 
     @Test
