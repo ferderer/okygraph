@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 /** Transpiler for Okygraph template files (.oky). */
 public class Transpiler {
-    public record Token(TokenType type, String value, int line, int column) {}
 
     private final StringBuilder writer = new StringBuilder();
     private ParsingContext context = ParsingContext.JAVA;

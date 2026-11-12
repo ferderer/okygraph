@@ -27,17 +27,6 @@ enum TokenPattern {
         ">>>|<<|>>|<=|>=|==|!=|&&|\\|\\||\\+\\+|--|->|::|" +
         "\\.\\.\\.|" +
         "[+\\-*/%<>=&|^~!?:;.,()\\[\\]{}@]", TokenType.JAVA_TOKEN),
-    KEYWORD(
-        "(?:abstract|assert|boolean|break|byte|case|char|class|const|continue|" +
-        "default|do|double|else|enum|extends|final|finally|float|for|goto|if|" +
-        "implements|import|instanceof|int|interface|long|native|new|package|" +
-        "private|protected|public|return|short|static|strictfp|super|switch|" +
-        "synchronized|this|throw|throws|transient|void|volatile|while|" +
-        "true|false|null|" +
-        "record|sealed|non-sealed|permits|yield|var|when|" +
-        "module|requires|exports|opens|uses|provides|to|with|open|transitive)\\b",
-        TokenType.JAVA_TOKEN),
-    EXPRESSION_KEYWORD("(?:true|false|null|new|instanceof)\\b", TokenType.JAVA_TOKEN),
     IDENTIFIER("[\\p{javaJavaIdentifierStart}][\\p{javaJavaIdentifierPart}]*", TokenType.JAVA_TOKEN),
     WHITESPACE("[ \\t]+", TokenType.JAVA_TOKEN),
     BACKTICK("`", TokenType.BACKTICK),
