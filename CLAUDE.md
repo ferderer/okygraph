@@ -36,6 +36,7 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 ## Conventions and constraints
 
 - Only two syntax concepts: a backtick switches between Java and HTML, and `{expr}` outputs a Java expression. Add no further template features; use plain Java instead (layouts via methods with `Content` lambdas, ADR-0092).
+- An expression `{expr}` ends on the line it starts (the tokenizer works line by line); otherwise the transpiler reports the line. A template may sit on one line: ``void render() {`<p>Hi</p>`}``.
 - Control flow (if/else/for/try-catch) is plain Java between backticks. Do not introduce @-directives, `#{}` or an AST.
 - Transpile in a single streaming pass: `matchToken()` calls `emit(type, value, line)` directly. No token list.
 - All regexes live in the `TokenPattern` enum:

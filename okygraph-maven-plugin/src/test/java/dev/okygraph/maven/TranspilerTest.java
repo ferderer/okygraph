@@ -157,4 +157,16 @@ public class TranspilerTest {
         assertEquals("String s = \"\\\\u0041\";", Transpiler.process("String s = \"\\\\u0041\";"));
         assertEquals("String s = \"\\\\A\";", Transpiler.process("String s = \"\\\\\\u0041\";"));
     }
+
+    @Test
+    void aTemplateOnOneLineClosesItsChainWhereItEnds() throws IOException {
+        assertEquals("void render() {html(\"<p>Hello</p>\");}", Transpiler.process("void render() {`<p>Hello</p>`}"));
+        assertEquals("void render() {html(\"<p>\").write(x).html(\"</p>\");}", Transpiler.process("void render() {`<p>{x}</p>`}"));
+    }
+
+    @Test
+    void anExpressionMustEndOnItsLine() {
+        RuntimeException e = assertThrows(RuntimeException.class, () -> Transpiler.process("void render() {`\n<p>{foo(1,\n2)}</p>\n`}"));
+        assertTrue(e.getMessage().contains("line 2"), e.getMessage());
+    }
 }

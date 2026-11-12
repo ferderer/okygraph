@@ -71,6 +71,9 @@ public class Transpiler {
                 }
                 position = newPosition;
             }
+            if (context == ParsingContext.EXPRESSION) {
+                throw new RuntimeException(String.format("Expression not closed at the end of line %d (an expression ends on the line it starts):\n%s", currentLine + 1, line));
+            }
             // Nur Newline emittieren wenn nicht letzte Zeile
             if (i < lines.length - 1) {
                 emit(TokenType.NEWLINE, "\n", line);
@@ -196,7 +199,13 @@ public class Transpiler {
                 flush();
                 writer.append(open.indent()).append("    ").append(open.name()).append(".commit();\n").append(open.indent()).append("} catch");
             }
-            case BACKTICK -> flush();
+            case BACKTICK -> {
+                if (seenTemplateToken) { // the template ends in the middle of a line: close the chain
+                    writer.append(";");
+                    seenTemplateToken = false;
+                }
+                flush();
+            }
             case NEWLINE -> {
                 if (seenTemplateToken) {
                     writer.append(".html(\"\\n\");");

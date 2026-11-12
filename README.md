@@ -39,6 +39,8 @@ protected void render() {`
 
 To print a literal backtick or `{` in HTML, escape it with a backslash: `` \` `` and `\{`. Other backslashes are literal.
 
+An expression `{expr}` must end on the line it starts.
+
 ### Escaping
 
 `{expr}` escapes `&`, `<` and `>`, which is right for text. Inside a quoted attribute write `{attr(expr)}`: it also escapes `"` and `'`. `{raw(expr)}` prints unescaped HTML. Okygraph does not guess the context, so choosing `attr` is the template author's job. `raw` and `attr` write their output immediately, so each must be the whole expression: `{raw(x)}`, not `{raw(x) + y}`. There is no JS or CSS escaping yet: keep scripts and styles in their own files.
