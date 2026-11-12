@@ -81,7 +81,11 @@ public class Transpiler {
         for (TokenPattern pattern : context.patterns) {
             String value = pattern.match(line, position);
             if (value != null) {
-                emit(pattern.type, value, line);
+                // whitespace after the last token of a line is not output; a blank between two tokens, as in {a} {b}, is
+                boolean trailingBlank = pattern.type == TokenType.HTML && value.isBlank() && position + value.length() == line.length();
+                if (!trailingBlank) {
+                    emit(pattern.type, value, line);
+                }
                 updateContext(pattern.type);
                 return position + value.length();
             }
@@ -153,14 +157,12 @@ public class Transpiler {
     private void emit(TokenType type, String value, String line) throws IOException {
         switch (type) {
             case HTML -> {
-                if (!value.isBlank()) {
-                    if (value.equals(line.substring(indent.length()))) { // whole line -> defer into the text-block cache
-                        htmlCache.add(unescape(line));
-                    }
-                    else { // this is a HTML fragment - line with an expression
-                        checkFragmentedLine();
-                        writer.append("html(\"").append(escape(unescape(value))).append("\")");
-                    }
+                if (value.equals(line.substring(indent.length()))) { // whole line -> defer into the text-block cache
+                    htmlCache.add(unescape(line));
+                }
+                else { // this is a HTML fragment - line with an expression
+                    checkFragmentedLine();
+                    writer.append("html(\"").append(escape(unescape(value))).append("\")");
                 }
             }
             case EXPRESSION_START -> {

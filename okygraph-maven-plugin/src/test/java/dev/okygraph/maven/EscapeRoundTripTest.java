@@ -69,6 +69,19 @@ class EscapeRoundTripTest {
     }
 
     @Test
+    void aSpaceBetweenTwoExpressionsIsKept() throws Exception {
+        assertEquals("<p>x y</p>\n<p>a  b</p>\n", render("""
+                    <p>{"x"} {"y"}</p>
+                    <p>{"a"}  {"b"}</p>
+            """));
+    }
+
+    @Test
+    void whitespaceAfterTheLastExpressionOfALineIsNotOutput() throws Exception {
+        assertEquals("<p>x\n", render("            <p>{\"x\"}   \n"));
+    }
+
+    @Test
     void trailingBackslashIsLiteral() throws Exception {
         assertEquals("<p>x\\\n<p>y\\\n", render("""
                     <p>x\\
