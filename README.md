@@ -41,7 +41,7 @@ To print a literal backtick or `{` in HTML, escape it with a backslash: `` \` ``
 
 ### Escaping
 
-`{expr}` escapes `&`, `<` and `>`, which is right for text. Inside a quoted attribute write `{attr(expr)}`: it also escapes `"` and `'`. `{raw(expr)}` prints unescaped HTML. Okygraph does not guess the context, so choosing `attr` is the template author's job. There is no JS or CSS escaping yet: keep scripts and styles in their own files.
+`{expr}` escapes `&`, `<` and `>`, which is right for text. Inside a quoted attribute write `{attr(expr)}`: it also escapes `"` and `'`. `{raw(expr)}` prints unescaped HTML. Okygraph does not guess the context, so choosing `attr` is the template author's job. `raw` and `attr` write their output immediately, so each must be the whole expression: `{raw(x)}`, not `{raw(x) + y}`. There is no JS or CSS escaping yet: keep scripts and styles in their own files.
 
 The Maven plugin transpiles this to pure Java at compile time. The result is a regular Java class — fully type-safe, debuggable, refactorable in any IDE, optimizable by the JIT.
 
@@ -74,17 +74,20 @@ On the first build the plugin also writes the base class `OkyTemplate.java` into
 
 ### App helpers
 
-The generated base class only integrates the framework (Spring MVC, Servlet API, SLF4J). Put helpers that need other libraries into your own layout class between `OkyTemplate` and your views. For example, a CSRF field for Spring Security forms:
+The generated base class only integrates the framework (Spring MVC, Servlet API, SLF4J). Put helpers that need other libraries into your own layout class between `OkyTemplate` and your views. For example, a CSRF field for Spring Security forms. An output helper writes and returns `this`:
 
 ```java
 import org.springframework.security.web.csrf.CsrfToken;
 
 public abstract class Layout extends OkyTemplate {
-    protected Raw csrfInput() {
+    protected OkyTemplate csrfInput() {
         CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-        if (token == null) return raw("");
-        return raw("<input type=\"hidden\" name=\"" + attr(token.getParameterName()).value()
-            + "\" value=\"" + attr(token.getToken()).value() + "\">");
+        if (token == null) return this;
+        html("<input type=\"hidden\" name=\"");
+        attr(token.getParameterName());
+        html("\" value=\"");
+        attr(token.getToken());
+        return html("\">");
     }
 }
 ```

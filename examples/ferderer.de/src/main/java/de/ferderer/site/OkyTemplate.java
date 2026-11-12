@@ -70,15 +70,17 @@ public abstract class OkyTemplate implements View {
     public OkyTemplate write(boolean v) { out.print(v);  return this; }
     public OkyTemplate write(char v)    { out.print(v);  return this; }
 
-    /** String — HTML-escaped. */
+    /** String — HTML-escaped (& < >). */
     public OkyTemplate write(String s) {
-        if (s != null) out.write(escape(s));
+        if (s != null) escaped(s, false);
         return this;
     }
 
-    /** Raw — skips escaping. Use raw("...") for trusted HTML fragments. */
-    public OkyTemplate write(Raw raw) {
-        if (raw != null) out.write(raw.value());
+    /** What raw() and attr() return: they have already written. Only this template is accepted. */
+    public OkyTemplate write(OkyTemplate written) {
+        if (written != this) {
+            throw new IllegalArgumentException("not an output of this template: " + written);
+        }
         return this;
     }
 
@@ -88,16 +90,18 @@ public abstract class OkyTemplate implements View {
         return this;
     }
 
-    // ── Types ─────────────────────────────────────────────────────────────────
+    // ── Escaping ─────────────────────────────────────────────────────────────
 
-    protected static Raw raw(String s) { return new Raw(s); }
-
-    /** Value inside a quoted HTML attribute: escapes &, <, > and both quote characters. Use {attr(x)} there instead of {x}. */
-    protected static Raw attr(String s) {
-        return s == null ? null : new Raw(escape(s).replace("\"", "&quot;").replace("'", "&#39;"));
+    /** Trusted HTML, written as it is: {raw(x)}. Writes now, so it must be the whole expression. */
+    protected OkyTemplate raw(String s) {
+        return s == null ? this : html(s);
     }
 
-    public record Raw(String value) {}
+    /** Value inside a quoted HTML attribute: {attr(x)} escapes & < > " and '. Writes now, so it must be the whole expression. */
+    protected OkyTemplate attr(String s) {
+        if (s != null) escaped(s, true);
+        return this;
+    }
 
     @FunctionalInterface
     public interface Content {
@@ -125,9 +129,44 @@ public abstract class OkyTemplate implements View {
 
     // ── Internal ─────────────────────────────────────────────────────────────
 
-    private static String escape(String s) {
-        return s.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;");
+    /** Writes s with & < > (in attributes also " and ') replaced; a string that needs nothing is written whole. */
+    private void escaped(String s, boolean attribute) {
+        if (clean(s, attribute)) {
+            out.write(s);
+            return;
+        }
+        int last = 0;
+        for (int i = 0, n = s.length(); i < n; i++) {
+            String entity = switch (s.charAt(i)) {
+                case '&' -> "&amp;";
+                case '<' -> "&lt;";
+                case '>' -> "&gt;";
+                case '"' -> attribute ? "&quot;" : null;
+                case '\'' -> attribute ? "&#39;" : null;
+                default -> null;
+            };
+            if (entity != null) {
+                out.write(s, last, i - last);
+                out.write(entity);
+                last = i + 1;
+            }
+        }
+        out.write(s, last, s.length() - last);
+    }
+
+    /** Short strings: one loop. From 64 characters on the JDK's vectorized indexOf is faster (measured). */
+    private static boolean clean(String s, boolean attribute) {
+        int n = s.length();
+        if (n < 64) {
+            for (int i = 0; i < n; i++) {
+                char c = s.charAt(i);
+                if (c == '&' || c == '<' || c == '>' || (attribute && (c == '"' || c == '\''))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return s.indexOf('&') < 0 && s.indexOf('<') < 0 && s.indexOf('>') < 0
+            && (!attribute || s.indexOf('"') < 0 && s.indexOf('\'') < 0);
     }
 }

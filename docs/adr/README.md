@@ -31,6 +31,6 @@ Decisions that shape Okygraph, in [MADR](https://adr.github.io/madr/) form. The 
 | [0118](0118-html-escapes-only-backtick-and-brace-other-backslashes-are-literal.md) | HTML escapes: only \` and \{ are escapes, every other backslash is literal |
 | [0119](0119-template-regions-enter-java-scopes-via-a-grammar-injection.md) | Template regions enter Java scopes via a grammar injection |
 | [0120](0120-text-blocks-are-opened-and-closed-at-the-shallowest-line-indent.md) | Text blocks are opened and closed at the shallowest line indent |
-| [0121](0121-escaping-text-by-default-attr-for-quoted-attribute-values.md) | Escaping: text by default, attr() for quoted attribute values |
 | [0122](0122-standalone-base-class-renders-into-the-writer-it-is-given.md) | STANDALONE base class: renders into the Writer it is given, no framework types |
 | [0123](0123-formatting-and-messages-are-application-helpers-not-part-of-the-base-class.md) | Formatting and messages are application helpers, not part of the base class |
+| [0124](0124-raw-and-attr-write-directly-clean-strings-are-written-whole.md) | raw() and attr() write directly; strings that need no escaping are written whole |

@@ -15,7 +15,7 @@ Earlier chats floated an additional syntax #{...} for raw output alongside raw()
 
 ## Decision Outcome
 
-Chosen option: Unescaped output is expressed exclusively as {raw(something)}, which is transpiled to write(raw(something)) using the wrapper record Raw(String value). The #{...} syntax will not be introduced.
+Chosen option: Unescaped output is expressed exclusively as {raw(something)}, which is transpiled to write(raw(something)) using the method raw(), which writes its argument unescaped and returns the template (ADR-0124). The #{...} syntax will not be introduced.
 
 Rationale: A single, self-explanatory syntax avoids ambiguity as in Thymeleaf; raw() is clearer, whereas #{} would have to be looked up.
 

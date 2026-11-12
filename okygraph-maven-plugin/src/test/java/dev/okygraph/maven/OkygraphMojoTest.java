@@ -53,7 +53,8 @@ class OkygraphMojoTest {
         assertTrue(source.startsWith("package com.example.views;"), source.lines().findFirst().orElse(""));
         assertTrue(source.contains("public abstract class OkyTemplate implements View"));
         assertFalse(source.contains("${package}"));
-        assertTrue(source.contains("protected static Raw attr(String s)"), "attribute escaping helper (ADR-0121)");
+        assertTrue(source.contains("protected OkyTemplate attr(String s)"), "attribute escaping helper (ADR-0121, ADR-0124)");
+        assertFalse(source.contains("record Raw"), "raw() and attr() write directly, there is no Raw type (ADR-0124)");
         assertFalse(source.contains("new PrintWriter(res.getWriter()"), "the root writer is the response writer, not wrapped (ADR-0001, ADR-0087)");
         assertFalse(source.contains("org.springframework.security"), "base class must only need Spring MVC (ADR-0117)");
         assertFalse(source.contains("LocaleContextHolder"), "no formatters in the base class (ADR-0123)");
@@ -68,7 +69,8 @@ class OkygraphMojoTest {
         assertTrue(source.startsWith("package com.example.views;"), source.lines().findFirst().orElse(""));
         assertTrue(source.contains("public abstract class OkyTemplate {"));
         assertTrue(source.contains("public void render(Writer writer)"));
-        assertTrue(source.contains("protected static Raw attr(String s)"));
+        assertTrue(source.contains("protected OkyTemplate attr(String s)"));
+        assertFalse(source.contains("record Raw"));
         assertFalse(source.contains("${package}"));
         assertFalse(source.matches("(?s).*import (org|jakarta|javax)\\..*"), "only java.* imports");
     }

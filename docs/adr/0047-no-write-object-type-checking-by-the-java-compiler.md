@@ -15,7 +15,7 @@ The question was whether the transpiler must analyze expression types to choose 
 
 ## Decision Outcome
 
-Chosen option: There is no `write(Object)`; `write` has overloads for primitives, `String`, `Raw` and `Content` only. The transpiler performs no type analysis and generates calls matching the context. If an overload is missing, the Java compilation fails.
+Chosen option: There is no `write(Object)`; `write` has overloads for primitives, `String`, `Content` and the template itself (what `raw()` and `attr()` return) only. The transpiler performs no type analysis and generates calls matching the context. If an overload is missing, the Java compilation fails.
 
 Rationale: Type safety without additional transpiler complexity, and no hidden toString() calls.
 

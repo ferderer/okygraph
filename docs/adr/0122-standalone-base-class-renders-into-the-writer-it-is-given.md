@@ -17,7 +17,7 @@ date: 2026-11-11
 
 ## Decision Outcome
 
-Chosen option: A second template, `base-classes/STANDALONE.template`. `public void render(Writer writer)` uses the writer exactly as given: no wrapping, no buffering, no flushing. The output API is the same as in the Spring template (`html`, the `write` overloads, `raw`, `attr`, `Raw`, `Content`, and the writer stack behind `try/catch`), so a template compiles against either base class. Differences: a failing writer surfaces as `UncheckedIOException`, because the chaining methods cannot throw checked exceptions, and there are no formatters, because they need a locale source that only a framework provides. Applications bring their own, for example ICU4J.
+Chosen option: A second template, `base-classes/STANDALONE.template`. `public void render(Writer writer)` uses the writer exactly as given: no wrapping, no buffering, no flushing. The output API is the same as in the Spring template (`html`, the `write` overloads, `raw`, `attr`, `Content`, and the writer stack behind `try/catch`), so a template compiles against either base class. Differences: a failing writer surfaces as `UncheckedIOException`, because the chaining methods cannot throw checked exceptions, and there are no formatters, because they need a locale source that only a framework provides. Applications bring their own, for example ICU4J.
 
 Rationale: It needs no framework type, so it is the smallest base class (79 lines) and the one to benchmark against engines that take a `Writer`. Taking a `Writer` instead of a `PrintWriter` keeps the caller in control: a `StringWriter`, a servlet writer or a file writer all work without an adapter layer.
 
