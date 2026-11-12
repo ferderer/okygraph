@@ -165,8 +165,25 @@ public class TranspilerTest {
     }
 
     @Test
-    void anExpressionMustEndOnItsLine() {
-        RuntimeException e = assertThrows(RuntimeException.class, () -> Transpiler.process("void render() {`\n<p>{foo(1,\n2)}</p>\n`}"));
-        assertTrue(e.getMessage().contains("line 2"), e.getMessage());
+    void anExpressionMayContinueOnTheNextLines() throws IOException {
+        String input = """
+            void render() {`
+                <p>{user.name()
+                        .trim()
+                        .toUpperCase()}</p>
+                <p>{a} and {b(1,
+                    2)}!</p>
+            `}
+            """;
+        String expected = """
+            void render() {
+                html("<p>").write(user.name()
+                        .trim()
+                        .toUpperCase()).html("</p>").html("\\n");
+                html("<p>").write(a).html(" and ").write(b(1,
+                    2)).html("!</p>").html("\\n");
+            }
+            """;
+        assertEquals(expected, Transpiler.process(input));
     }
 }

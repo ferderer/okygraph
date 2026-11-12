@@ -39,7 +39,7 @@ protected void render() {`
 
 To print a literal backtick or `{` in HTML, escape it with a backslash: `` \` `` and `\{`. Other backslashes are literal.
 
-An expression `{expr}` must end on the line it starts.
+An expression `{expr}` may continue on the following lines, for example a chain of calls.
 
 ### Escaping
 

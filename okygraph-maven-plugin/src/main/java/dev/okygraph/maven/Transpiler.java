@@ -70,9 +70,6 @@ public class Transpiler {
                 }
                 position = newPosition;
             }
-            if (context == ParsingContext.EXPRESSION) {
-                throw new RuntimeException(String.format("Expression not closed at the end of line %d (an expression ends on the line it starts):\n%s", currentLine + 1, line));
-            }
             // Nur Newline emittieren wenn nicht letzte Zeile
             if (i < lines.length - 1) {
                 emit(TokenType.NEWLINE, "\n", line);
@@ -206,7 +203,7 @@ public class Transpiler {
                 flush();
             }
             case NEWLINE -> {
-                if (seenTemplateToken) {
+                if (seenTemplateToken && context != ParsingContext.EXPRESSION) { // inside an expression a line break is only whitespace
                     writer.append(".html(\"\\n\");");
                     seenTemplateToken = false;
                 }
