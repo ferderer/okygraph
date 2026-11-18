@@ -126,14 +126,23 @@ With `blog.count={0, plural, =0 {No articles yet} one {# article} other {# artic
 
 Every Java template engine adds a runtime layer: expression evaluation, caching, view resolution, framework integration. Okygraph removes all of it.
 
-| | Okygraph | JTE | Thymeleaf |
-|---|---|---|---|
-| Hot path | ~0.03 ms | ~0.8 ms | ~7 ms |
-| Runtime deps | 0 | 1 | 8+ |
+Render time of the same two pages (a login form and a food page with about 90 table rows, shared layout, same model for every engine; JMH, 3 forks, one thread):
 
-Okygraph's figure was measured on a view of a production app after JIT warm-up. The JTE and Thymeleaf figures and the dependency counts are rough estimates, not measurements; benchmarks will follow.
+| Engine | Login page | Food page | Extra runtime jars in a Spring Boot app |
+|---|---:|---:|---:|
+| Okygraph | 1.5 µs | 34 µs | 0 |
+| JStachio 1.3.7 | 1.6 µs | 57 µs | 5 (with its Spring module) |
+| JTE 3.2.5 | 2.0 µs | 53 µs | 5 (with its Spring starter) |
+| mustache.java 0.9.14 | 4.4 µs | 165 µs | 1 |
+| Rocker 2.4.0 | 5.3 µs | 159 µs | 1 |
+| Pebble 4.1.2 | 6.5 µs | 273 µs | 4 |
+| FreeMarker 2.3.35 | 9.0 µs | 293 µs | 3 |
+| Handlebars.java 4.5.8 | 22 µs | 919 µs | 9 |
+| Thymeleaf 3.1 | 80 µs | 2,062 µs | 5 |
 
-There is no cold start — templates are Java methods, called like any other code. Because templates are plain Java, the JIT can inline everything.
+Served over HTTP by Spring Boot (Tomcat, building the model included), the gap shrinks: on the food page Okygraph, JStachio and JTE are within the run-to-run variation of each other, Thymeleaf serves about a seventh as many requests. The first request after startup took 56 ms with Okygraph, 83 ms with JTE, 750 ms with Thymeleaf and 1.5 s with JSP (one start each). Okygraph needs no view resolver and no adapter: the generated template is the Spring `View`.
+
+These are first runs on a development machine (WSL2), good for the order, not for exact figures; measurements on dedicated machines will follow. The benchmark, with every engine's templates and an equivalence test that checks that all engines produce the same page, lives in its own repository.
 
 ## Features
 
