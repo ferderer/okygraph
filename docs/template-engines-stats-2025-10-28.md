@@ -9,11 +9,4 @@
 | jte               | 1015  |     240 |  19952 | https://github.com/casid/jte              |
 | rocker            |  776  |     150 |   9876 | https://github.com/fizzed/rocker          |
 | jstachio          |  304  |     577 |  24073 | https://github.com/jstachio/jstachio      |
-| Okygraph          |    0  |       6 |   ~490 | https://github.com/ferderer/okygraph      |
-
-jmustache             867        16        3246     https://github.com/samskivert/jmustache
-StringTemplate4      1010       109       15537     https://github.com/antlr/stringtemplate4
-jinjava               753       635       55382     https://github.com/HubSpot/jinjava
-jade4j                706       153        8054     https://github.com/neuland/jade4j
-velocity              398       401       34148     https://github.com/apache/velocity-engine
-httl                  344       289       29743     https://github.com/httl/httl
+| Okygraph          |    0  |       6 |    480 | https://github.com/ferderer/okygraph      |

@@ -36,6 +36,7 @@ docs/adr/                        architecture decision records (ADR-NNNN in this
 ## Conventions and constraints
 
 - Only two syntax concepts: a backtick switches between Java and HTML, and `{expr}` outputs a Java expression. Add no further template features; use plain Java instead (layouts via methods with `Content` lambdas, ADR-0092).
+- Nested Java braces inside `{expr}` are intentionally unsupported (except inside string or character literals). Put array initializers, block lambdas, anonymous classes and switch expressions with braces in the model instead. Do not flag this restriction as a defect or add brace-nesting support.
 - An expression `{expr}` may continue on the next lines (chained calls); a line break inside it is whitespace. A template may sit on one line: ``void render() {`<p>Hi</p>`}``.
 - Control flow (if/else/for/try-catch) is plain Java between backticks. Do not introduce @-directives, `#{}` or an AST.
 - Transpile in a single streaming pass: `matchToken()` calls `emit(type, value, line)` directly. No token list.

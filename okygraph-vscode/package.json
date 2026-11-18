@@ -2,7 +2,7 @@
   "name": "okygraph",
   "displayName": "Okygraph",
   "description": "Syntax highlighting and snippets for Okygraph template files (.oky)",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "okygraph",
   "engines": { "vscode": "^1.85.0" },
   "categories": ["Programming Languages"],
@@ -24,8 +24,7 @@
         "scopeName": "source.oky",
         "path": "./syntaxes/oky.tmLanguage.json",
         "embeddedLanguages": {
-          "meta.embedded.java.oky": "java",
-          "meta.embedded.html.oky": "html"
+          "meta.embedded.java.oky": "java"
         }
       }
     ],

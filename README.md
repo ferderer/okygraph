@@ -41,6 +41,8 @@ To print a literal backtick or `{` in HTML, escape it with a backslash: `` \` ``
 
 An expression `{expr}` may continue on the following lines, for example a chain of calls.
 
+Expressions inside `{expr}` must not contain nested Java braces. Array initializers, block lambdas, anonymous classes and switch expressions with braces are intentionally unsupported here; compute such values in the model and reference the result in the template. Braces inside Java string or character literals are allowed, for example `{"{}"}`.
+
 ### Escaping
 
 `{expr}` escapes `&`, `<` and `>`, which is right for text. Inside a quoted attribute write `{attr(expr)}`: it also escapes `"` and `'`. `{raw(expr)}` prints unescaped HTML. Okygraph does not guess the context, so choosing `attr` is the template author's job. `raw` and `attr` write their output immediately, so each must be the whole expression: `{raw(x)}`, not `{raw(x) + y}`. There is no JS or CSS escaping yet: keep scripts and styles in their own files.
